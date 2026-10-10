@@ -1,9 +1,8 @@
 # Shawtty
 
-Reel generator for small English-language creators: type a topic, get a finished
-9:16 narrated motion-graphics reel. The working app lives in
-`research-skill/research/` (Express + Remotion). `plan.md` is the approved
-direction for v2 (research-to-reel pipeline).
+Type a topic, get a finished 9:16 narrated motion-graphics reel. Built for small English-language creators who don't want to touch a timeline.
+
+The code that runs today lives in `research-skill/research/` (Express + Remotion). `plan.md` is where v2 goes next (research-to-reel pipeline).
 
 ## Repo layout
 
@@ -31,7 +30,7 @@ research-skill/research/     # Runnable MVP app
 1. Clone and enter the app:
 
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/atharvdange618/Shawtty.git
    cd Shawtty/research-skill/research
    ```
 
@@ -86,8 +85,8 @@ research-skill/research/     # Runnable MVP app
    ```
 
    Open `http://localhost:3000`, type a prompt, submit. To include a target
-   length, write it in the prompt ("20-second reel", "1 min") — the planner
-   parses 5–90s and fits TTS speed (0.85–1.15) to match.
+   length, write it in the prompt ("20-second reel", "1 min"), the planner
+   parses 5-90s and fits TTS speed (0.85-1.15) to match.
 
 7. Check a job:
 
@@ -130,11 +129,11 @@ research-skill/research/     # Runnable MVP app
   rejected 400) → stay on `openai/tts-1` for now.
 - `reel/` output or `public/generated/*.mp3` missing → both dirs are
   auto-created on server start; both are git-ignored build artifacts.
-- Never commit `.env` — it is git-ignored; `.env.example` is the template.
+- Never commit `.env`. It is git-ignored; `.env.example` is the template.
 
 ## Docs
 
-- `plan.md` — v2 goal, staged pipeline, cost/reliability, open decisions.
-- `research-skill/research/README.md` — MVP app notes.
-- `research-skill/research/HARNESS.md` — pipeline contract, visual system,
+- `plan.md`: v2 goal, staged pipeline, cost/reliability, open decisions.
+- `research-skill/research/README.md`: MVP app notes.
+- `research-skill/research/HARNESS.md`: pipeline contract, visual system,
   HyperFrames eval (SSIM 0.922), verify commands.
