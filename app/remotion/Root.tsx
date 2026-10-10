@@ -72,7 +72,7 @@ export const RemotionRoot = () => (
     height={1920}
     defaultProps={defaultProps}
     calculateMetadata={({ props }) => {
-      const duration = Math.max(5, Math.min(90, Number(props.durationInSeconds) || 10));
+      const duration = Math.max(5, Math.min(180, Number(props.durationInSeconds) || 10));
 
       return {
         durationInFrames: Math.ceil(duration * FPS),

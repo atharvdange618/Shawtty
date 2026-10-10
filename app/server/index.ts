@@ -64,6 +64,14 @@ app.use((_req, res) => {
   res.sendFile(path.join(paths.publicDir, 'index.html'));
 });
 
+process.on('uncaughtException', (err) => {
+  console.error('[UNCAUGHT EXCEPTION]:', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[UNHANDLED REJECTION]:', reason);
+});
+
 app.listen(config.port, () => {
   console.log(`AI Reel Agent running at http://localhost:${config.port}`);
   console.log(`Workspace: ${ROOT_DIR}`);

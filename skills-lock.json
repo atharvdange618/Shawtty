@@ -7,6 +7,18 @@
       "skillPath": "skills/git-workflow/SKILL.md",
       "computedHash": "f44e488fd739565c1613b8dcc84a0f0ed224905e380265c42feebcea97b8c489"
     },
+    "motion-graphics": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/motion-graphics/SKILL.md",
+      "computedHash": "73420963bea97e1008257c32f89b172486e87b87132ee4ebc83d21e1805ffd25"
+    },
+    "remotion-best-practices": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-best-practices/SKILL.md",
+      "computedHash": "82737c4a08aae4d4d28b75dcafacbf6ef934679ae98457d22fc8c4be16b99e73"
+    },
     "remotion-to-hyperframes": {
       "source": "heygen-com/hyperframes",
       "sourceType": "github",
