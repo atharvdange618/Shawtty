@@ -3,6 +3,7 @@
 // Declared as `type` aliases, not `interface`: Remotion constrains composition
 // props to `Record<string, unknown>`, and only type literals get an implicit
 // index signature, so interfaces would fail that assignment.
+import type { ReactElement } from 'react';
 
 export type ReelTheme =
   | 'storytelling'
@@ -25,6 +26,8 @@ export type Visual =
   | 'landscape_canvas'
   | 'character_duo'
   | 'scarf_wind'
+  | 'water_breathing'
+  | 'hinokami_kagura'
   | 'cinematic_quote'
   | 'bento_grid'
   | 'neural_flow'
@@ -74,7 +77,23 @@ export type SceneVisualData = {
   imageUrl?: string;
   characterName?: string;
   characterQuote?: string;
-  effect?: 'red_scarf_wind' | 'petals' | 'embers' | 'none';
+  effect?: 'red_scarf_wind' | 'petals' | 'embers' | 'snow' | 'water_waves' | 'solar_flames' | 'none';
+};
+
+/** One transcribed word with absolute timestamps (seconds in the narration audio). */
+export type TranscriptWord = {
+  word: string;
+  start: number;
+  end: number;
+};
+
+/** A contiguous slice of the timestamped transcript — one visual shot. */
+export type TimedBeat = {
+  text: string;
+  /** Seconds from the start of the narration audio. */
+  start: number;
+  end: number;
+  words: TranscriptWord[];
 };
 
 export type Scene = {
@@ -88,6 +107,11 @@ export type Scene = {
   transition?: TransitionType;
   visualData?: SceneVisualData;
   imageUrl?: string;
+  /** Transcript-grounded timing: seconds from the start of the narration audio. */
+  start?: number;
+  end?: number;
+  /** Per-word start offsets (seconds, relative to `start`). Drives captions. */
+  wordTimings?: number[];
 };
 
 export type ReelStyle = {
@@ -104,7 +128,7 @@ export type ReelPlan = {
   scenes: Scene[];
   style: ReelStyle;
   targetSeconds: number | null;
-  unsupported: string[];
+  unsupported?: string[];
   searchInsights?: string[];
   searchQuery?: string;
   images?: Array<{ title: string; url: string; thumbnail?: string }>;
@@ -131,14 +155,52 @@ export type TimelineScene = Scene & {
   durationInFrames: number;
 };
 
-export type SfxName = 'swish' | 'pop';
+/**
+ * Contract for runtime-generated visuals: the LLM writes ONE bespoke
+ * `GeneratedVisual` component per video (see server/codegen.ts + prompts.ts).
+ * It arrives via React context at module scope — never through serialized
+ * Remotion props (functions can't cross the bundle boundary).
+ */
+export type GeneratedVisualProps = {
+  /** Local scene frame (0-based). The ONLY clock — no Date/random allowed. */
+  t: number;
+  totalFrames: number;
+  beatIndex: number;
+  totalBeats: number;
+  beat: string;
+  /** Beat split into tokens (same order) — per-word stagger/highlight. */
+  words: string[];
+  headline: string;
+  /** Intended archetype name (advisory — the code composes freely). */
+  visual: string;
+  visualData: SceneVisualData;
+  /** Scene accent hex. Use ONCE as the focal point. */
+  accent: string;
+  /** Resolved theme tokens — no theme imports needed in generated code. */
+  theme: { bg: string; text: string; muted: string; accent2: string };
+};
+
+export type GeneratedVisualComponent = (props: GeneratedVisualProps) => ReactElement | null;
+
+export type SfxName =
+  | 'swish'
+  | 'pop'
+  | 'whoosh_fast'
+  | 'whoosh_heavy'
+  | 'punch_impact'
+  | 'laser_slice'
+  | 'cyber_blip'
+  | 'typewriter_click'
+  | 'riser'
+  | 'chime'
+  | 'shimmer'
+  | 'swell';
 
 export type Cue = {
   sfx: SfxName;
   /** Seconds from the start of the reel. */
   t: number;
-  /** Gain in dB. */
-  db: number;
+  db?: number;
 };
 
 export type JobStatus = 'queued' | 'running' | 'complete' | 'failed';

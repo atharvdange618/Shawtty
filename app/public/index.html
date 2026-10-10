@@ -83,6 +83,22 @@
             </div>
           </div>
 
+          <div class="trace" id="trace" hidden>
+            <p class="eyebrow">How the agent worked</p>
+            <ol class="trace-steps" id="traceSteps"></ol>
+            <div class="eval-chips" id="evalScores" hidden></div>
+            <div id="beatsWrap" hidden>
+              <p class="eyebrow">Voice-locked beats</p>
+              <table class="beats-table" id="beatsTable"></table>
+            </div>
+            <div id="probeWrap" hidden>
+              <p class="eyebrow">Render probe</p>
+              <a id="probeLink" href="#" target="_blank" rel="noreferrer">
+                <img id="probeImg" alt="Probe frame from the bespoke render" />
+              </a>
+            </div>
+          </div>
+
           <div class="output" id="output" hidden>
             <video id="outputVideo" controls playsinline></video>
             <div class="output-actions">

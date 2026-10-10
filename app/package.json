@@ -20,6 +20,7 @@
     "@remotion/bundler": "4.0.534",
     "@remotion/cli": "4.0.534",
     "@remotion/renderer": "4.0.534",
+    "@remotion/shapes": "^4.0.534",
     "@remotion/transitions": "4.0.534",
     "dotenv": "17.2.3",
     "express": "5.1.0",

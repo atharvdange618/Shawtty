@@ -19,6 +19,7 @@ export type AppConfig = {
   speechModel: string;
   speechVoice: string;
   speechFormat: string;
+  transcribeModel: string;
   promptMaxChars: number;
 };
 
@@ -37,6 +38,10 @@ export const config: AppConfig = {
   speechModel: process.env.SPEECH_MODEL || 'openai/tts-1',
   speechVoice: process.env.SPEECH_VOICE || 'alloy',
   speechFormat: process.env.SPEECH_FORMAT || 'mp3',
+  // Word-timestamp transcription of our own TTS audio (Whisper verbose_json).
+  // Falls back to estimated timings if the gateway rejects it — the reel
+  // still renders, just with syllable-estimated mouth timings.
+  transcribeModel: process.env.TRANSCRIBE_MODEL || 'openai/whisper-1',
   promptMaxChars: Number(process.env.PROMPT_MAX_CHARS || 20000),
 };
 

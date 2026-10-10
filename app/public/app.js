@@ -16,6 +16,14 @@ const planNotes = document.querySelector('#planNotes');
 const planLength = document.querySelector('#planLength');
 const unsupportedBlock = document.querySelector('#unsupportedBlock');
 const unsupportedList = document.querySelector('#unsupportedList');
+const trace = document.querySelector('#trace');
+const traceSteps = document.querySelector('#traceSteps');
+const evalScores = document.querySelector('#evalScores');
+const beatsWrap = document.querySelector('#beatsWrap');
+const beatsTable = document.querySelector('#beatsTable');
+const probeWrap = document.querySelector('#probeWrap');
+const probeLink = document.querySelector('#probeLink');
+const probeImg = document.querySelector('#probeImg');
 
 let pollTimer = null;
 let promptMaxChars = 20000;
@@ -79,6 +87,103 @@ const showOutput = (job) => {
 };
 
 let currentPlan = null;
+let extrasLoadedFor = null;
+
+const fetchJson = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`missing ${url}`);
+  return response.json();
+};
+
+const fmtClock = (iso) => {
+  try {
+    return new Date(iso).toLocaleTimeString([], { hour12: false });
+  } catch {
+    return '';
+  }
+};
+
+// Agent trace: stages, creativity scores, voice-locked beats, render probe.
+// All static per-job files — fetched once the plan exists, refreshed never.
+const renderExtras = async (job) => {
+  if (!job.id || extrasLoadedFor === job.id) return;
+  const hasPlan = job.plan && job.plan.scenes && job.plan.scenes.length > 0;
+  if (!hasPlan && job.status !== 'complete') return;
+  extrasLoadedFor = job.id;
+
+  const base = `/reel/${job.id}`;
+  const [stages, evalJson, transcript] = await Promise.all([
+    fetchJson(`${base}/trace.json`).catch(() => null),
+    fetchJson(`${base}/eval.json`).catch(() => null),
+    fetchJson(`${base}/transcript.json`).catch(() => null),
+  ]);
+
+  trace.hidden = !stages && !evalJson && !transcript;
+  if (trace.hidden) return;
+
+  traceSteps.replaceChildren(
+    ...(stages || []).map((entry) => {
+      const item = document.createElement('li');
+      const time = document.createElement('time');
+      time.textContent = fmtClock(entry.t);
+      item.append(time, document.createTextNode(entry.detail ? `${entry.stage} — ${entry.detail}` : entry.stage));
+      return item;
+    }),
+  );
+
+  if (evalJson && typeof evalJson.overall === 'number') {
+    evalScores.hidden = false;
+    const chips = [
+      ['hook', evalJson.hook],
+      ['variety', evalJson.variety],
+      ['motion', evalJson.motion],
+      ['sound', evalJson.sound],
+      ['originality', evalJson.originality],
+    ];
+    evalScores.replaceChildren(
+      ...chips.map(([label, value]) => {
+        const chip = document.createElement('span');
+        chip.textContent = `${label} ${value}`;
+        return chip;
+      }),
+      (() => {
+        const chip = document.createElement('span');
+        chip.className = 'overall';
+        chip.textContent = `overall ${evalJson.overall}/5`;
+        return chip;
+      })(),
+    );
+  } else {
+    evalScores.hidden = true;
+  }
+
+  const beats = transcript && Array.isArray(transcript.beats) ? transcript.beats : [];
+  beatsWrap.hidden = beats.length === 0;
+  if (beats.length > 0) {
+    const trusted = transcript.trusted ? 'whisper' : 'estimated';
+    beatsTable.replaceChildren(
+      ...beats.map((beat, i) => {
+        const row = document.createElement('tr');
+        const num = document.createElement('td');
+        num.textContent = `${i + 1}`;
+        const time = document.createElement('td');
+        time.className = 'time';
+        time.textContent = `${Number(beat.start).toFixed(1)}–${Number(beat.end).toFixed(1)}s ${trusted}`;
+        const text = document.createElement('td');
+        text.textContent = beat.text;
+        row.append(num, time, text);
+        return row;
+      }),
+    );
+  }
+
+  probeImg.onerror = () => {
+    probeWrap.hidden = true;
+  };
+  probeImg.src = `${base}/probe.png?t=${Date.now()}`;
+  probeLink.href = `${base}/probe.png`;
+  probeWrap.hidden = false;
+};
 
 const lengthText = (plan) => {
   const actual = !output.hidden && Number.isFinite(outputVideo.duration)
@@ -113,6 +218,7 @@ const updateJob = (job) => {
   setProgress(job.progress);
   renderSteps(job);
   renderPlanNotes(job);
+  renderExtras(job).catch(console.error);
 
   if (job.status === 'complete') {
     clearInterval(pollTimer);
@@ -186,6 +292,8 @@ form.addEventListener('submit', async (event) => {
   }
 
   output.hidden = true;
+  trace.hidden = true;
+  extrasLoadedFor = null;
   generateButton.disabled = true;
   generateButton.querySelector('span').textContent = 'Running';
   runTitle.textContent = 'Queued';

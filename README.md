@@ -138,9 +138,11 @@ All free, no API calls:
   `typescript-eslint` recommended, node globals for TS, browser globals for
   `public/**/*.js`. Use `npm run lint:fix` to autofix.
 - `npm run test` — Vitest (`vitest.config.ts`, node env). Unit tests cover the
-  pure, deterministic helpers: `remotion/timeline.ts` (`timelineFor`) and
-  `server/aicredits.ts` (`extractTargetSeconds`, `wordBudgetFor`,
-  `resolveSpeechVoice`). Use `npm run test:watch` to watch.
+  pure, deterministic helpers: `server/timeline.ts` (`timelineFor`,
+  `timelineFromBeats`, beat grouping), `server/review.ts`, `server/eval.ts`,
+  `server/codegen.ts` (prompt + security scan), `server/sound.ts`,
+  `server/media.ts`, and `server/aicredits.ts` (`extractTargetSeconds`,
+  `wordBudgetFor`, `resolveSpeechVoice`). Use `npm run test:watch` to watch.
 
 ## API
 

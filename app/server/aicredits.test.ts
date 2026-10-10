@@ -21,11 +21,13 @@ describe('extractTargetSeconds', () => {
     expect(extractTargetSeconds('45s')).toBe(45);
     expect(extractTargetSeconds('1 minute')).toBe(60);
     expect(extractTargetSeconds('1.5 min')).toBe(90);
+    expect(extractTargetSeconds('a 2 minute explainer')).toBe(120);
   });
 
-  it('ignores values outside the 5-90s composition clamp', () => {
+  it('ignores values outside the 5-180s composition clamp', () => {
     expect(extractTargetSeconds('a 3 second clip')).toBeNull();
     expect(extractTargetSeconds('from the 1990s')).toBeNull();
+    expect(extractTargetSeconds('a 5 minute epic')).toBeNull();
   });
 
   it('returns null when no duration is present', () => {

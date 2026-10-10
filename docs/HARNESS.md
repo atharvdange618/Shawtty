@@ -43,7 +43,7 @@ living vignette — never a static card:
 - Smooth handoffs: scenes are composed with `@remotion/transitions` `TransitionSeries`
   and a `fade()` cross-fade of 14 frames (`OVERLAP`) — hard cuts are banned. Both the
   outgoing and incoming scenes animate (the old one-sided cover ramp is gone), so no
-  ghosting. `app/remotion/timeline.ts` returns non-overlapping slots sized so the composed
+  ghosting. `app/server/timeline.ts` returns non-overlapping slots sized so the composed
   total still equals the audio length (`Σslots − OVERLAP×(n−1) = durationInFrames`);
   the SFX cues in `app/server/jobs.ts` key off the same numbers. `@remotion/transitions`
   pins to the rest of the stack (4.0.534); it bundles React DOM 19, so this app pins
@@ -69,6 +69,34 @@ living vignette — never a static card:
 - Eval (Step 4): Remotion baseline vs `npx hyperframes render` → SSIM All **0.922**
   (Y 0.894). Below the T2 0.95 bar → Remotion stays the production renderer.
 - `app/remotion.config.ts` (png + bt709) exists for eval parity — do not delete.
+
+## System prompt + creativity harness (v3: all visuals LLM-generated)
+
+- Single source of truth: `app/server/prompts.ts` (ROLE, CANVAS_LAW,
+  MOTION_LAW, DESIGN_LAW, SFX_LAW, EXPORT_CONTRACT). The bespoke-visual
+  codegen prompt (`app/server/codegen.ts`) is assembled from it; the
+  choreographer prompt in `app/server/aicredits.ts` follows the same laws.
+  House style changes go in `prompts.ts`, nowhere else.
+- `app/remotion/` is renderer-only: `GeneratedReel.tsx` (stage — audio,
+  timeline slots, transitions, HUD, grain, camera), `CustomVisual`
+  injection contract, `Root.tsx`/`index.tsx`. No visual templates live
+  here; every pixel of content is LLM-written per video. Template fallback
+  is disabled — codegen failure fails the job loudly instead of airing
+  filler.
+- Validation chain per job: security scan → fresh webpack bundle →
+  still-frame probe (`reel/<id>/probe.png`) → full render. Any failure
+  falls back only to a failed job with the reason, never to canned
+  graphics.
+- Creativity eval (`app/server/eval.ts`, pure + tested): hook, visual
+  variety, motion quality, sound consistency, originality, each 1–5.
+  Persisted to `reel/<id>/eval.json`. Hook or originality under 3 means
+  the pipeline followed a template, not the brief.
+- Agent trace (`reel/<id>/trace.json`): research → script → voice →
+  transcript → beats → choreography → review → eval → codegen → render →
+  mix. The UI polls it plus `transcript.json` (beats), `eval.json`, and
+  `probe.png` so the LLM's work is visible while it runs.
+- Review repairs (`app/server/review.ts`) stay in server logs +
+  `reel/<id>/review.json` — routine, never user-facing errors.
 
 ## Verifying (use this)
 
