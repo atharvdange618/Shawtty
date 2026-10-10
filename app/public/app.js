@@ -31,8 +31,11 @@ const setProgress = (value) => {
 
 const renderSteps = (job) => {
   const base = [
-    'Planning motion graphics',
+    'Searching the web for topic insights',
+    'Planning Google-grade motion graphics',
+    'Generating narration',
     'Rendering Remotion reel',
+    'Mixing music and sound effects',
     'Complete',
   ];
 

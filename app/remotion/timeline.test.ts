@@ -55,4 +55,18 @@ describe('timelineFor', () => {
     expect(first.visual).toBe('orbit');
     expect(first.durationInFrames).toBe(300);
   });
+
+  it('handles large scene counts (e.g. 20 scenes) without negative frames or overflow', () => {
+    const scenes = Array.from({ length: 20 }).map((_, i) => scene((i % 2) + 1));
+    const totalFrames = 600; // 20s at 30fps
+    const timeline = timelineFor(scenes, totalFrames);
+
+    expect(timeline.length).toBe(20);
+    timeline.forEach((s) => {
+      expect(s.durationInFrames).toBeGreaterThanOrEqual(OVERLAP);
+    });
+
+    const slotSum = timeline.reduce((sum, s) => sum + s.durationInFrames, 0);
+    expect(slotSum - OVERLAP * (scenes.length - 1)).toBe(totalFrames);
+  });
 });
