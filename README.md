@@ -107,6 +107,8 @@ netlogs-trail/               # Neatlogs integration task brief
 | `npm run check` | Env + ffmpeg/ffprobe sanity | Free |
 | `npm run render:smoke` | Local 6s render to `reel/smoke/` | Free |
 | `npm run typecheck` | TypeScript check across `server/`, `remotion/`, `scripts/` | Free |
+| `npm run lint` | ESLint (TypeScript + browser JS) | Free |
+| `npm run test` | Vitest unit tests (`test:watch` to watch) | Free |
 | `npm run remotion:studio` | Open Remotion Studio | Free |
 | `npm run remotion:render` | Manual render to `reel/manual.mp4` | Free |
 

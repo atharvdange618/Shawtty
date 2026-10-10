@@ -377,8 +377,9 @@ M1 and M2 can run in parallel (different files). M3 depends on M2's `timing.json
    payments soon, and section 7's "keys only in the browser" should be revisited.
 2. **Flux image price.** Someone check the charge for one `flux-1-schnell` image on the
    AICredits dashboard. If it's well above ₹0.50, we cap images per reel or try another model.
-3. **New dev dependencies.** Proposed: `vitest`, `eslint`. Optional: `zod` for validating
-   model JSON (today we validate by hand in `normalizeScene`). Approve or reject each.
+3. **New dev dependencies.** ✅ Resolved — `vitest` + `eslint` (flat config,
+   `typescript-eslint`) are in. `zod` for validating model JSON is still open
+   (today `normalizeScene` validates by hand).
 4. **TypeScript.** ✅ Resolved — migrated. The app is now TypeScript (`server/`,
    `remotion/`, `scripts/`), run through `tsx` and typechecked with `tsc --noEmit`
    (`npm run typecheck`). Shared domain types live in `app/types.ts`; later stage

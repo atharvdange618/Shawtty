@@ -10,7 +10,11 @@
     "remotion:render": "remotion render remotion/index.tsx GeneratedReel reel/manual.mp4",
     "render:smoke": "tsx scripts/render-smoke.ts",
     "check": "tsx scripts/check-env.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@remotion/bundler": "4.0.534",
@@ -24,12 +28,17 @@
     "remotion": "4.0.534"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/express": "^5.0.0",
     "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "eslint": "^10.12.0",
+    "globals": "^17.13.0",
     "tsx": "^4.20.0",
-    "typescript": "^5.9.0"
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.71.1",
+    "vitest": "^5.0.3"
   },
   "allowScripts": {
     "esbuild@0.28.1": true
