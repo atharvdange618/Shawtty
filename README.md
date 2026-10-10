@@ -2,16 +2,19 @@
 
 Type a topic, get a finished 9:16 narrated motion-graphics reel. Built for small English-language creators who don't want to touch a timeline.
 
-The code that runs today lives in `app/` (Express + Remotion). `docs/plan.md` is where v2 goes next (research-to-reel pipeline).
+The code that runs today lives in `app/` (Express + Remotion, TypeScript throughout). `docs/plan.md` is where v2 goes next (research-to-reel pipeline).
 
 ## Repo layout
 
 ```text
-app/                         # Runnable MVP app (Express + Remotion)
+app/                         # Runnable MVP app (Express + Remotion), TypeScript
   server/                    # Express API + job pipeline (jobs, AICredits, render, media, sound)
   remotion/                  # Trusted renderer (GeneratedReel, 1080x1920 @30fps)
   public/                    # Browser prompt panel
   scripts/                   # check-env, render-smoke
+  types.ts                   # Shared domain types
+  eslint.config.js           # ESLint flat config
+  vitest.config.ts           # Vitest config
 docs/                        # plan, revise-plan, HARNESS, research notes
 hyperframes/                 # HyperFrames port output + eval artifacts
 skills/                      # Vendored agent skills (git-workflow, remotion-to-hyperframes)
@@ -19,9 +22,11 @@ skills-lock.json             # Skill install lock (source + hash)
 netlogs-trail/               # Neatlogs integration task brief
 ```
 
+Unit tests are co-located as `*.test.ts` next to the module they cover.
+
 ## Prerequisites
 
-- Node.js 18+ (`node --version`)
+- Node.js 22.12+ or 24+ (`node --version`) — required by Vitest 5 / ESLint 9
 - FFmpeg + FFprobe on PATH (`ffmpeg -version`, `ffprobe -version`)
 - An AICredits key with access to `openai/gpt-4.1-mini` (plan) and
   `openai/tts-1` (speech)
@@ -61,7 +66,18 @@ netlogs-trail/               # Neatlogs integration task brief
    | `PROMPT_MAX_CHARS` | `20000` | Max prompt length |
    | `PORT` | `3000` | HTTP port |
 
-4. Sanity-check env + binaries (no API cost):
+4. Run the local quality gate (no API cost):
+
+   ```bash
+   npm run typecheck
+   npm run lint
+   npm run test
+   ```
+
+   Expected: no type errors, no lint problems, all tests pass. See
+   [Quality checks](#quality-checks) for what each covers.
+
+5. Sanity-check env + binaries (no API cost):
 
    ```bash
    npm run check
@@ -70,7 +86,7 @@ netlogs-trail/               # Neatlogs integration task brief
    Expected: key status, model names, and `ffmpeg:` / `ffprobe:` version lines.
    If a binary is "missing", install FFmpeg and re-run.
 
-5. Verify the render path without spending (no LLM calls):
+6. Verify the render path without spending (no LLM calls):
 
    ```bash
    npm run render:smoke
@@ -79,7 +95,7 @@ netlogs-trail/               # Neatlogs integration task brief
    Expected: `reel/smoke/reel.mp4`. This exercises the same `renderReel`
    function jobs use.
 
-6. Start the server:
+7. Start the server:
 
    ```bash
    npm run dev
@@ -89,7 +105,7 @@ netlogs-trail/               # Neatlogs integration task brief
    length, write it in the prompt ("20-second reel", "1 min"), the planner
    parses 5-90s and fits TTS speed (0.85-1.15) to match.
 
-7. Check a job:
+8. Check a job:
 
    ```bash
    curl http://localhost:3000/api/health
@@ -111,6 +127,20 @@ netlogs-trail/               # Neatlogs integration task brief
 | `npm run test` | Vitest unit tests (`test:watch` to watch) | Free |
 | `npm run remotion:studio` | Open Remotion Studio | Free |
 | `npm run remotion:render` | Manual render to `reel/manual.mp4` | Free |
+
+## Quality checks
+
+All free, no API calls:
+
+- `npm run typecheck` — `tsc --noEmit` across `server/`, `remotion/`,
+  `scripts/`, `types.ts`, and test files. Strict mode, no `any`.
+- `npm run lint` — ESLint flat config (`eslint.config.js`): `js` +
+  `typescript-eslint` recommended, node globals for TS, browser globals for
+  `public/**/*.js`. Use `npm run lint:fix` to autofix.
+- `npm run test` — Vitest (`vitest.config.ts`, node env). Unit tests cover the
+  pure, deterministic helpers: `remotion/timeline.ts` (`timelineFor`) and
+  `server/aicredits.ts` (`extractTargetSeconds`, `wordBudgetFor`,
+  `resolveSpeechVoice`). Use `npm run test:watch` to watch.
 
 ## API
 
