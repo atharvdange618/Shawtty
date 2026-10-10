@@ -75,6 +75,9 @@ living vignette — never a static card:
 ```bash
 cd app
 npm run check          # env + ffmpeg/ffprobe sanity
+npm run typecheck      # tsc --noEmit
+npm run lint           # eslint
+npm run test           # vitest run (unit tests, no API cost)
 npm run dev            # server on :3000
 # submit a prompt in the UI, then:
 node -e "fetch('http://localhost:3000/api/jobs/<id>').then(r=>r.json()).then(j=>console.log(j.job.status, j.job.step, j.job.videoUrl))"
