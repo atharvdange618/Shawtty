@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!-- GeneratedReel ported from remotion/GeneratedReel.jsx via skill remotion-to-hyperframes.
+     Props baked from Root.jsx defaultProps (10s, 30fps, 1080x1920, 3 scenes).
+     Per-job scenes can be supplied later via `hyperframes render --variables`. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; background: #000; }
+  #stage {
+    position: relative; width: 1080px; height: 1920px; overflow: hidden;
+    background: #F1F2F4;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .clip { position: absolute; inset: 0; }
+  #hdr {
+    position: absolute; left: 78px; top: 64px; right: 78px; z-index: 5;
+    display: flex; justify-content: space-between; align-items: center;
+    color: #161616; font-size: 25px; font-weight: 800;
+  }
+  #rail {
+    position: absolute; left: 78px; right: 78px; bottom: 60px; height: 12px;
+    border-radius: 999px; background: rgba(22,22,22,0.12); overflow: hidden; z-index: 5;
+  }
+  #railfill {
+    width: 0%; height: 100%; border-radius: 999px; background: #161616;
+  }
+</style>
+</head>
+<body>
+<div id="stage"
+  data-composition-id="GeneratedReel"
+  data-start="0" data-duration="10" data-fps="30"
+  data-width="1080" data-height="1920"
+  data-title="Prompt to Reel">
+  <div id="scene-1" class="clip"
+    data-composition-id="scene-1"
+    data-composition-src="compositions/scene-1.html"
+    data-start="0" data-duration="3.3333" data-track-index="0"></div>
+  <div id="scene-2" class="clip"
+    data-composition-id="scene-2"
+    data-composition-src="compositions/scene-2.html"
+    data-start="3.3333" data-duration="3.3333" data-track-index="0"></div>
+  <div id="scene-3" class="clip"
+    data-composition-id="scene-3"
+    data-composition-src="compositions/scene-3.html"
+    data-start="6.6667" data-duration="3.3333" data-track-index="0"></div>
+  <div id="hdr" data-track-index="1">
+    <span>Prompt to Reel</span><span>AI Reel</span>
+  </div>
+  <div id="rail" data-track-index="1"><div id="railfill"></div></div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // ProgressRail: interpolate(frame,[0,300],[0,100]) linear -> width tween over 10s.
+    tl.fromTo("#railfill", { width: "0%" }, { width: "100%", duration: 10, ease: "none" }, 0);
+    window.__timelines = window.__timelines || {};
+    window.__timelines["GeneratedReel"] = tl;
+  </script>
+</div>
+</body>
+</html>
