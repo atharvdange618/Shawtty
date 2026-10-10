@@ -1,0 +1,9 @@
+node_modules/
+.env
+.cache/
+dist/
+out/
+reel/*
+!reel/.gitkeep
+public/generated/*
+!public/generated/.gitkeep
