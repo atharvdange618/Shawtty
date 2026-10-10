@@ -37,13 +37,21 @@ living vignette — never a static card:
   figures, floating UI cards and confetti drift.
 - Ambient motion never stops: sine bob/drift on every floating element, orbiting
   chips, traveling dots, pulsing rings, live typing indicator.
-- Smooth handoffs: scenes overlap 14 frames (`OVERLAP`) with slide-up + fade cover —
-  hard cuts are banned. Text pops (sticker slam, staggered word rise) in the first
-  ~25 frames while the vignette builds underneath.
+- Smooth handoffs: scenes are composed with `@remotion/transitions` `TransitionSeries`
+  and a `fade()` cross-fade of 14 frames (`OVERLAP`) — hard cuts are banned. Both the
+  outgoing and incoming scenes animate (the old one-sided cover ramp is gone), so no
+  ghosting. `remotion/timeline.js` returns non-overlapping slots sized so the composed
+  total still equals the audio length (`Σslots − OVERLAP×(n−1) = durationInFrames`);
+  the SFX cues in `server/jobs.js` key off the same numbers. `@remotion/transitions`
+  pins to the rest of the stack (4.0.534); it bundles React DOM 19, so this app pins
+  `react`/`react-dom` 19.2.3. Text pops (sticker slam, staggered word rise) in the
+  first ~25 frames while the vignette builds underneath.
 - Text sits top (sticker kicker, ink headline, gray body); illustration fills the
   lower two-thirds. Header + progress rail persist.
-- All animation is pure frame math (no state/effects) — required for determinism
-  and for the HyperFrames port to stay valid. New scenes must follow this beat.
+- All scene animation is pure frame math (no state/effects) — required for determinism
+  and for the HyperFrames port to stay valid. New scenes must follow this beat. The
+  handoff itself is now a package component (`TransitionSeries`), which the HF port
+  cannot reproduce; that parity gap is `plan.md` open decision 5.
 
 ## HyperFrames port (skill: remotion-to-hyperframes)
 
@@ -51,6 +59,9 @@ living vignette — never a static card:
 - Skill lint (Step 1): no blockers/warnings; info `staticFile` only (inert, audio null).
 - Output: `hyperframes/index.html` + `compositions/scene-{1,2,3}.html`
   (paused GSAP timelines, `window.__timelines`, spring→`back.out` per `timing.md`).
+- **Stale vs current renderer:** the port was generated before the `TransitionSeries`
+  fix and still encodes the old 14f one-sided slide-fade handoff (`compositions/*.html`,
+  `OVERLAP` comment). Re-port or retire per open decision 5.
 - Gaps: `hyperframes/TRANSLATION_NOTES.md`.
 - Eval (Step 4): Remotion baseline vs `npx hyperframes render` → SSIM All **0.922**
   (Y 0.894). Below the T2 0.95 bar → Remotion stays the production renderer.

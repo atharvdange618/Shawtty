@@ -6,7 +6,7 @@ import { getAudioDuration, mixSoundtrack } from './media.js';
 import { config, paths } from './config.js';
 import { renderReel } from './render.js';
 import { buildSoundtrack } from './sound.js';
-import { timelineFor } from '../remotion/timeline.js';
+import { OVERLAP, timelineFor } from '../remotion/timeline.js';
 
 const FPS = 30;
 
@@ -125,12 +125,16 @@ const runJob = async (job) => {
 
     await updateJob(job, { step: 'Mixing music and sound effects', progress: 96 });
 
-    // Same frame math as Root.jsx + GeneratedReel so cues land on the transitions.
+    // Same frame math as timeline.js + GeneratedReel so cues land on the handoffs.
+    // `from` is the frame the incoming scene starts being visible (the cross-fade
+    // runs for OVERLAP frames after it), so the swish sits at the fade's centre.
     const totalFrames = Math.ceil(Math.max(5, Math.min(90, durationInSeconds)) * FPS);
     const cues = timelineFor(plan.scenes, totalFrames).flatMap((scene, index) => {
-      const t = scene.from / FPS;
-      const pop = { sfx: 'pop', t: t + 0.2, db: -22 }; // headline slam
-      return index === 0 ? [pop] : [{ sfx: 'swish', t, db: -17 }, pop];
+      const start = scene.from / FPS;
+      const pop = { sfx: 'pop', t: start + 0.2, db: -22 }; // headline slam
+      if (index === 0) return [pop];
+      const swish = { sfx: 'swish', t: start + OVERLAP / 2 / FPS, db: -17 };
+      return [swish, pop];
     });
     const musicPath = path.join(jobDir, 'music.wav');
     const sfxPath = path.join(jobDir, 'sfx.wav');
