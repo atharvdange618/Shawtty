@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Reel Agent</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M13.8 3.2 5.6 13.4a1 1 0 0 0 .78 1.63h4.2l-1.14 5.13a.6.6 0 0 0 1.05.5l8.07-10.07a1 1 0 0 0-.78-1.63h-4.05l1.1-5.23a.6.6 0 0 0-1.03-.53Z" />
+            </svg>
+          </span>
+          <span>Reel Agent</span>
+          <small>MVP</small>
+        </div>
+        <div class="status-pill" id="keyStatus">Checking key</div>
+      </header>
+
+      <section class="workspace">
+        <section class="prompt-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Prompt</p>
+              <h1>Generate a synced motion reel</h1>
+            </div>
+            <span class="model-chip" id="modelChip">Loading models</span>
+          </div>
+
+          <form id="promptForm" class="composer">
+            <textarea
+              id="promptInput"
+              name="prompt"
+              rows="8"
+              placeholder="Create a 20-second reel explaining how a voice AI agent books appointments for a clinic..."
+              required
+            ></textarea>
+
+            <div class="composer-actions">
+              <button type="button" class="ghost-button" id="sampleButton">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v13A2.5 2.5 0 0 1 17.5 21h-11A2.5 2.5 0 0 1 4 18.5v-13Zm4 1.75h8M8 11h8M8 14.75h5" />
+                </svg>
+                Sample
+              </button>
+              <button type="submit" class="send-button" id="generateButton">
+                <span>Generate</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M22 2 11 13" />
+                  <path d="m22 2-7 20-4-9-9-4 20-7Z" />
+                </svg>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <aside class="run-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">Run</p>
+              <h2 id="runTitle">No job yet</h2>
+            </div>
+            <div class="progress-ring" id="progressRing">0%</div>
+          </div>
+
+          <div class="progress-track">
+            <div id="progressBar"></div>
+          </div>
+
+          <ol class="steps" id="steps">
+            <li class="idle">Waiting for a prompt</li>
+          </ol>
+
+          <div class="plan-notes" id="planNotes" hidden>
+            <p class="plan-length" id="planLength"></p>
+            <div id="unsupportedBlock" hidden>
+              <p class="eyebrow">Not supported yet</p>
+              <ul id="unsupportedList"></ul>
+            </div>
+          </div>
+
+          <div class="output" id="output" hidden>
+            <video id="outputVideo" controls playsinline></video>
+            <div class="output-actions">
+              <a id="videoLink" class="ghost-button" href="#" target="_blank" rel="noreferrer">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <path d="M7 10l5 5 5-5" />
+                  <path d="M12 15V3" />
+                </svg>
+                Video
+              </a>
+              <a id="audioLink" class="ghost-button" href="#" target="_blank" rel="noreferrer">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M9 18V5l12-2v13" />
+                  <circle cx="6" cy="18" r="3" />
+                  <circle cx="18" cy="16" r="3" />
+                </svg>
+                Audio
+              </a>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
