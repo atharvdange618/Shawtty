@@ -379,9 +379,10 @@ M1 and M2 can run in parallel (different files). M3 depends on M2's `timing.json
    AICredits dashboard. If it's well above ₹0.50, we cap images per reel or try another model.
 3. **New dev dependencies.** Proposed: `vitest`, `eslint`. Optional: `zod` for validating
    model JSON (today we validate by hand in `normalizeScene`). Approve or reject each.
-4. **TypeScript.** The app is plain JS (`.js`/`.jsx`), but `tsconfig.json` exists and checks
-   nothing. Do we migrate to TS during this work (cleaner contracts between stages, slower
-   start) or stay on JS for v2?
+4. **TypeScript.** ✅ Resolved — migrated. The app is now TypeScript (`server/`,
+   `remotion/`, `scripts/`), run through `tsx` and typechecked with `tsc --noEmit`
+   (`npm run typecheck`). Shared domain types live in `app/types.ts`; later stage
+   modules (`server/stages/*`) start as TS.
 5. **HyperFrames port.** `HARNESS.md` keeps a HyperFrames port of the old renderer in sync.
    The new layouts would break that parity. Do we drop the port, or keep it for the
    `motion` fallback only?

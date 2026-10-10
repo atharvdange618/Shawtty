@@ -1,16 +1,17 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { config } from '../server/config.js';
+import { config } from '../server/config';
 
 const execFileAsync = promisify(execFile);
 
-const checkBinary = async (name) => {
+const checkBinary = async (name: string): Promise<string> => {
   try {
     const { stdout, stderr } = await execFileAsync(name, ['-version']);
     const firstLine = `${stdout || stderr}`.split('\n')[0].trim();
     return `${name}: ${firstLine}`;
   } catch (error) {
-    return `${name}: missing or not executable (${error.message})`;
+    const message = error instanceof Error ? error.message : String(error);
+    return `${name}: missing or not executable (${message})`;
   }
 };
 

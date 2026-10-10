@@ -1,8 +1,8 @@
 import express from 'express';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { config, paths, ROOT_DIR } from './config.js';
-import { createJob, getJob, listJobs } from './jobs.js';
+import { config, paths, ROOT_DIR } from './config';
+import { createJob, getJob, listJobs } from './jobs';
 
 const app = express();
 

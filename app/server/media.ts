@@ -3,7 +3,7 @@ import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 
-export const getAudioDuration = async (audioPath) => {
+export const getAudioDuration = async (audioPath: string): Promise<number> => {
   const { stdout } = await execFileAsync('ffprobe', [
     '-v',
     'error',
@@ -14,7 +14,7 @@ export const getAudioDuration = async (audioPath) => {
     audioPath,
   ]);
 
-  const duration = Number.parseFloat(stdout.trim());
+  const duration = Number.parseFloat(String(stdout).trim());
   if (!Number.isFinite(duration) || duration <= 0) {
     throw new Error('Could not determine audio duration with ffprobe.');
   }
@@ -22,9 +22,21 @@ export const getAudioDuration = async (audioPath) => {
   return duration;
 };
 
+export type MixSoundtrackOptions = {
+  videoPath: string;
+  musicPath: string;
+  sfxPath: string;
+  outputPath: string;
+};
+
 // Voice (the video's own track) ducks the music via sidechain compression;
 // SFX sit on top undimmed; a limiter catches peaks. Filter from reel-studio's render.sh.
-export const mixSoundtrack = async ({ videoPath, musicPath, sfxPath, outputPath }) => {
+export const mixSoundtrack = async ({
+  videoPath,
+  musicPath,
+  sfxPath,
+  outputPath,
+}: MixSoundtrackOptions): Promise<void> => {
   await execFileAsync('ffmpeg', [
     '-y', '-v', 'error',
     '-i', videoPath,

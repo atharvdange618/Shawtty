@@ -1,6 +1,7 @@
-import { renderReel } from '../server/render.js';
+import { renderReel } from '../server/render';
+import type { ReelInputProps } from '../types';
 
-const inputProps = {
+const inputProps: ReelInputProps = {
   jobId: 'smoke',
   title: 'Smoke Test Reel',
   prompt: 'Verify the Remotion renderer path without calling any paid APIs.',

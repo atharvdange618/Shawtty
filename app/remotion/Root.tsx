@@ -1,10 +1,10 @@
-import React from 'react';
 import { Composition } from 'remotion';
-import { GeneratedReel } from './GeneratedReel.jsx';
+import { GeneratedReel } from './GeneratedReel';
+import type { ReelInputProps } from '../types';
 
 const FPS = 30;
 
-const defaultProps = {
+const defaultProps: ReelInputProps = {
   jobId: 'preview',
   title: 'Prompt to Reel',
   prompt: 'Create a short reel about AI agents.',
