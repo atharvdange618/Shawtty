@@ -3,18 +3,20 @@ import {
   AbsoluteFill,
   Audio,
   Easing,
-  Sequence,
   interpolate,
   spring,
   staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
+import { TransitionSeries, linearTiming } from '@remotion/transitions';
+import { fade } from '@remotion/transitions/fade';
 import { OVERLAP, timelineFor } from './timeline.js';
 
 // Flat-illustration explainer style (light canvas, ink + accent + white cards).
 // Every scene is a living vignette: ambient bob/drift never stops, elements pop
-// in staggered, and scenes overlap with a smooth slide-fade (no hard cuts).
+// in staggered, and scenes hand off through @remotion/transitions' TransitionSeries
+// (a real cross-fade — the outgoing scene fades out as the incoming one fades in).
 // All animation stays pure frame math (no state/effects) — deterministic and portable.
 
 const fontFamily =
@@ -693,23 +695,8 @@ const KineticHeadline = ({ text }) => {
   );
 };
 
-const Scene = ({ scene, index, total, durationInFrames, isFirst }) => {
+const Scene = ({ scene, index, total }) => {
   const frame = useCurrentFrame();
-  // Smooth slide-fade handoff: incoming covers outgoing over OVERLAP frames.
-  const cover = isFirst
-    ? interpolate(frame, [0, 12], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
-    : interpolate(frame, [0, OVERLAP], [0, 1], {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
-        easing: Easing.out(Easing.cubic),
-      });
-  const riseY = isFirst
-    ? interpolate(frame, [0, 12], [40, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
-    : interpolate(frame, [0, OVERLAP], [110, 0], {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
-        easing: Easing.out(Easing.cubic),
-      });
   const accent = scene.accent || '#E8A800';
   const bodyOpacity = interpolate(frame, [12, 24], [0, 1], {
     extrapolateLeft: 'clamp',
@@ -717,7 +704,7 @@ const Scene = ({ scene, index, total, durationInFrames, isFirst }) => {
   });
 
   return (
-    <AbsoluteFill style={{ opacity: cover, transform: `translateY(${riseY}px)` }}>
+    <AbsoluteFill>
       <div style={{ padding: '150px 78px 0', fontFamily, position: 'relative', zIndex: 2 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Sticker text={scene.kicker} accent={accent} delay={4} />
@@ -795,21 +782,29 @@ export const GeneratedReel = ({ title, scenes, audioFile }) => {
         <span>AI Reel</span>
       </div>
 
-      {timeline.map((scene, index) => (
-        <Sequence
-          key={`${scene.headline}-${index}`}
-          from={scene.from}
-          durationInFrames={scene.durationInFrames}
-        >
-          <Scene
-            scene={scene}
-            index={index}
-            total={timeline.length}
-            durationInFrames={scene.durationInFrames}
-            isFirst={index === 0}
-          />
-        </Sequence>
-      ))}
+      <TransitionSeries>
+        {timeline.flatMap((scene, index) => {
+          const items = [];
+          if (index > 0) {
+            items.push(
+              <TransitionSeries.Transition
+                key={`transition-${index}`}
+                presentation={fade()}
+                timing={linearTiming({ durationInFrames: OVERLAP })}
+              />,
+            );
+          }
+          items.push(
+            <TransitionSeries.Sequence
+              key={`scene-${index}`}
+              durationInFrames={scene.durationInFrames}
+            >
+              <Scene scene={scene} index={index} total={timeline.length} />
+            </TransitionSeries.Sequence>,
+          );
+          return items;
+        })}
+      </TransitionSeries>
 
       <div
         style={{
