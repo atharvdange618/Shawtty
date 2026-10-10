@@ -6,8 +6,8 @@
 ## Pipeline
 
 1. User submits a prompt in the browser panel (`app/public/app.js` → `POST /api/jobs`).
-2. Server creates a job (`app/server/jobs.js`) and calls AICredits chat with
-   `openai/gpt-4.1-mini` (`app/server/aicredits.js: generateReelPlan`).
+2. Server creates a job (`app/server/jobs.ts`) and calls AICredits chat with
+   `openai/gpt-4.1-mini` (`app/server/aicredits.ts: generateReelPlan`).
 3. The model returns strict JSON: title, narration (<900 chars), 4–6 scenes
    `{kicker, headline, body, visual, accent, durationWeight}`, style `{mood, palette}`.
    Allowed visuals: `orbit | bars | timeline | cards | pulse` (contract enforced in
@@ -22,7 +22,7 @@
    Remotion loads the MP3 over HTTP from this server, not via `staticFile()`, because
    the cached bundle snapshots `public/` once per process. Sarvam Bulbul is unusable
    through the gateway (it swaps every voice for `meera`, which 400s).
-   Voice/model allowlists live in `app/server/aicredits.js` (`resolveSpeechVoice`).
+   Voice/model allowlists live in `app/server/aicredits.ts` (`resolveSpeechVoice`).
 5. Remotion renders `GeneratedReel` (1080x1920, 30fps) with the plan + duration as
    input props. Output: `app/reel/<job-id>/reel.mp4` (+ `plan.json`, `input.json`, `job.json`).
 6. Failures persist `error` + `trace` (stack) in `job.json` and log server-side.
@@ -43,9 +43,9 @@ living vignette — never a static card:
 - Smooth handoffs: scenes are composed with `@remotion/transitions` `TransitionSeries`
   and a `fade()` cross-fade of 14 frames (`OVERLAP`) — hard cuts are banned. Both the
   outgoing and incoming scenes animate (the old one-sided cover ramp is gone), so no
-  ghosting. `app/remotion/timeline.js` returns non-overlapping slots sized so the composed
+  ghosting. `app/remotion/timeline.ts` returns non-overlapping slots sized so the composed
   total still equals the audio length (`Σslots − OVERLAP×(n−1) = durationInFrames`);
-  the SFX cues in `app/server/jobs.js` key off the same numbers. `@remotion/transitions`
+  the SFX cues in `app/server/jobs.ts` key off the same numbers. `@remotion/transitions`
   pins to the rest of the stack (4.0.534); it bundles React DOM 19, so this app pins
   `react`/`react-dom` 19.2.3. Text pops (sticker slam, staggered word rise) in the
   first ~25 frames while the vignette builds underneath.
@@ -58,7 +58,7 @@ living vignette — never a static card:
 
 ## HyperFrames port (skill: remotion-to-hyperframes)
 
-- Source: `app/remotion/GeneratedReel.jsx` (+ `Root.jsx` defaultProps baked).
+- Source: `app/remotion/GeneratedReel.tsx` (+ `Root.tsx` defaultProps baked).
 - Skill lint (Step 1): no blockers/warnings; info `staticFile` only (inert, audio null).
 - Output: `hyperframes/index.html` + `hyperframes/compositions/scene-{1,2,3}.html`
   (paused GSAP timelines, `window.__timelines`, spring→`back.out` per `timing.md`).
@@ -82,6 +82,6 @@ node -e "fetch('http://localhost:3000/api/jobs/<id>').then(r=>r.json()).then(j=>
 
 Render smoke (no LLM cost), from `app/`: `npm run render:smoke`.
 Style check (single frame), from `app/`:
-`npx remotion still remotion/index.jsx GeneratedReel <out>.png --frame=30`.
+`npx remotion still remotion/index.tsx GeneratedReel <out>.png --frame=30`.
 HF re-validate after visual edits (from repo root): re-render baseline + `npx hyperframes render ./hyperframes`,
 then `ffmpeg -i baseline.mp4 -i hf.mp4 -lavfi ssim -f null -`.

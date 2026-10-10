@@ -1,8 +1,11 @@
 import fs from 'node:fs/promises';
-import { config } from './config.js';
+import { config } from './config';
+import { ApiError } from './errors';
+import type { ReelPlan, Scene, Visual } from '../types';
 
-const retryableStatus = new Set([404, 405, 502, 503, 504]);
-const baseUrlCandidates = () => {
+const retryableStatus = new Set<number>([404, 405, 502, 503, 504]);
+
+const baseUrlCandidates = (): string[] => {
   const urls = [config.baseUrl];
   if (config.fallbackBaseUrl && config.fallbackBaseUrl !== config.baseUrl) {
     urls.push(config.fallbackBaseUrl);
@@ -10,22 +13,43 @@ const baseUrlCandidates = () => {
   return urls;
 };
 
-const readErrorBody = async (response) => {
+type ErrorBody = { error?: { message?: string }; message?: string };
+
+const readErrorBody = async (response: Response): Promise<string> => {
   const text = await response.text();
   try {
-    const json = JSON.parse(text);
+    const json = JSON.parse(text) as ErrorBody;
     return json.error?.message || json.message || text;
   } catch {
     return text.slice(0, 600);
   }
 };
 
-const postJson = async (path, body, { expectBinary = false } = {}) => {
+type PostJsonOptions = { expectBinary?: boolean };
+
+// Overloads keep the binary (speech) call typed as Buffer and the JSON call
+// typed as the caller's response shape, without leaking `any` at call sites.
+function postJson<T>(
+  path: string,
+  body: unknown,
+  options?: { expectBinary?: false },
+): Promise<T>;
+function postJson(
+  path: string,
+  body: unknown,
+  options: { expectBinary: true },
+): Promise<Buffer>;
+async function postJson(
+  path: string,
+  body: unknown,
+  { expectBinary = false }: PostJsonOptions = {},
+): Promise<unknown> {
   if (!config.apiKey) {
     throw new Error('Missing AICREDITS_API_KEY in .env.');
   }
 
-  let lastError = null;
+  const bodyRecord = (body ?? {}) as { model?: string; voice?: string };
+  let lastError: unknown = null;
 
   for (const baseUrl of baseUrlCandidates()) {
     try {
@@ -40,11 +64,18 @@ const postJson = async (path, body, { expectBinary = false } = {}) => {
 
       if (!response.ok) {
         const message = await readErrorBody(response);
-        const error = new Error(
-          `AICredits ${response.status} from ${baseUrl}${path} (model=${body?.model || 'n/a'} voice=${body?.voice || 'n/a'}): ${message}`,
+        const error = new ApiError(
+          `AICredits ${response.status} from ${baseUrl}${path} (model=${bodyRecord.model || 'n/a'} voice=${bodyRecord.voice || 'n/a'}): ${message}`,
+          {
+            status: response.status,
+            detail: {
+              baseUrl,
+              path,
+              model: bodyRecord.model,
+              voice: bodyRecord.voice,
+            },
+          },
         );
-        error.status = response.status;
-        error.detail = { baseUrl, path, model: body?.model, voice: body?.voice };
         lastError = error;
 
         if (retryableStatus.has(response.status)) {
@@ -61,16 +92,19 @@ const postJson = async (path, body, { expectBinary = false } = {}) => {
       return response.json();
     } catch (error) {
       lastError = error;
-      if (!String(error.message || '').includes('fetch failed')) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (!message.includes('fetch failed')) {
         throw error;
       }
     }
   }
 
-  throw lastError || new Error(`AICredits request failed for ${path}.`);
-};
+  throw lastError ?? new Error(`AICredits request failed for ${path}.`);
+}
 
-export const BULBUL_V2_SPEAKERS = new Set([
+export type BulbulVersion = 'v2' | 'v3';
+
+export const BULBUL_V2_SPEAKERS = new Set<string>([
   'anushka',
   'abhilash',
   'manisha',
@@ -80,7 +114,7 @@ export const BULBUL_V2_SPEAKERS = new Set([
   'hitesh',
 ]);
 
-export const BULBUL_V3_SPEAKERS = new Set([
+export const BULBUL_V3_SPEAKERS = new Set<string>([
   'aditya', 'ritu', 'ashutosh', 'priya', 'neha', 'rahul', 'pooja',
   'rohan', 'simran', 'kavya', 'amit', 'dev', 'ishita', 'shreya',
   'ratan', 'varun', 'manan', 'sumit', 'roopa', 'kabir', 'aayan',
@@ -89,28 +123,34 @@ export const BULBUL_V3_SPEAKERS = new Set([
   'soham', 'rupali',
 ]);
 
-export const DEFAULT_VOICE_BY_MODEL = {
+export const DEFAULT_VOICE_BY_MODEL: Record<BulbulVersion, string> = {
   v2: 'anushka',
   v3: 'shubh',
 };
 
 // Known-invalid voices that users commonly set: OpenAI voices and
 // legacy Sarvam names. Kept for a clearer warning message.
-const KNOWN_INVALID_FOR_BULBUL = new Set([
+const KNOWN_INVALID_FOR_BULBUL = new Set<string>([
   'alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer',
   'meera', 'diya',
 ]);
 
-const detectBulbulVersion = (model) => {
+const detectBulbulVersion = (model?: string): BulbulVersion => {
   const normalized = String(model || '').toLowerCase();
   if (normalized.includes('v3')) return 'v3';
   if (normalized.includes('v2')) return 'v2';
   return 'v3';
 };
 
-export const OPENAI_TTS_VOICES = new Set(['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']);
+export const OPENAI_TTS_VOICES = new Set<string>(['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']);
 
-export const resolveSpeechVoice = (model, voice) => {
+export type ResolvedVoice = {
+  voice: string;
+  version: 'openai' | BulbulVersion;
+  fallbackUsed: boolean;
+};
+
+export const resolveSpeechVoice = (model: string, voice: string): ResolvedVoice => {
   const requested = String(voice || '').trim().toLowerCase();
 
   if (String(model || '').toLowerCase().startsWith('openai/')) {
@@ -138,7 +178,7 @@ export const resolveSpeechVoice = (model, voice) => {
   return { voice: fallback, version, fallbackUsed: true };
 };
 
-const extractJson = (content) => {
+const extractJson = (content: string): Record<string, unknown> => {
   const fenced = content.match(/```(?:json)?\s*([\s\S]*?)```/i);
   const candidate = fenced ? fenced[1] : content;
   const start = candidate.indexOf('{');
@@ -148,31 +188,46 @@ const extractJson = (content) => {
     throw new Error('Model did not return a JSON object.');
   }
 
-  return JSON.parse(candidate.slice(start, end + 1));
+  return JSON.parse(candidate.slice(start, end + 1)) as Record<string, unknown>;
 };
 
-const clampText = (value, maxLength) => {
+const clampText = (value: unknown, maxLength: number): string => {
   const text = String(value || '').replace(/\s+/g, ' ').trim();
   return text.length > maxLength ? `${text.slice(0, maxLength - 1)}...` : text;
 };
 
-const isHex = (value) => /^#[0-9a-f]{6}$/i.test(String(value || ''));
+const isHex = (value: unknown): boolean => /^#[0-9a-f]{6}$/i.test(String(value || ''));
 
-const normalizeScene = (scene, index) => {
-  const visuals = new Set(['orbit', 'bars', 'timeline', 'cards', 'pulse']);
-  const visual = visuals.has(scene?.visual) ? scene.visual : ['orbit', 'bars', 'cards'][index % 3];
+const VISUALS = new Set<Visual>(['orbit', 'bars', 'timeline', 'cards', 'pulse']);
+const FALLBACK_VISUALS: Visual[] = ['orbit', 'bars', 'cards'];
+const FALLBACK_ACCENTS = ['#35d6ff', '#ffcc66', '#ff6b8a'];
+
+type RawScene = {
+  kicker?: unknown;
+  headline?: unknown;
+  body?: unknown;
+  visual?: unknown;
+  accent?: unknown;
+  durationWeight?: unknown;
+};
+
+const normalizeScene = (scene: unknown, index: number): Scene => {
+  const raw = (scene ?? {}) as RawScene;
+  const visual = VISUALS.has(raw.visual as Visual)
+    ? (raw.visual as Visual)
+    : FALLBACK_VISUALS[index % 3];
 
   return {
-    kicker: clampText(scene?.kicker || `Scene ${index + 1}`, 28),
-    headline: clampText(scene?.headline || 'Key idea', 54),
-    body: clampText(scene?.body || 'A concise supporting thought for this beat.', 110),
+    kicker: clampText(raw.kicker || `Scene ${index + 1}`, 28),
+    headline: clampText(raw.headline || 'Key idea', 54),
+    body: clampText(raw.body || 'A concise supporting thought for this beat.', 110),
     visual,
-    accent: isHex(scene?.accent) ? scene.accent : ['#35d6ff', '#ffcc66', '#ff6b8a'][index % 3],
-    durationWeight: Math.max(0.5, Math.min(3, Number(scene?.durationWeight) || 1)),
+    accent: isHex(raw.accent) ? String(raw.accent) : FALLBACK_ACCENTS[index % 3],
+    durationWeight: Math.max(0.5, Math.min(3, Number(raw.durationWeight) || 1)),
   };
 };
 
-const fallbackScenes = (prompt) => [
+const fallbackScenes = (prompt: string): Scene[] => [
   {
     kicker: 'Idea',
     headline: 'Turn the prompt into a clear reel',
@@ -201,21 +256,31 @@ const fallbackScenes = (prompt) => [
 
 // Measured from openai/tts-1 (alloy) output: 2.42-2.64 words per second.
 const WORDS_PER_SECOND = 2.5;
-// jobs.js adds this much silence after the voice.
+// jobs.ts adds this much silence after the voice.
 export const TAIL_SECONDS = 0.6;
 
 // "20-second", "30 sec", "45s", "1 minute", "1.5 min". First match wins.
 // Values outside 5-90s (the composition's clamp) are ignored, e.g. "1990s".
-export const extractTargetSeconds = (prompt) => {
+export const extractTargetSeconds = (prompt: string): number | null => {
   const match = String(prompt).match(/(\d+(?:\.\d+)?)\s*-?\s*(seconds?|secs?|s|minutes?|mins?)\b/i);
   if (!match) return null;
   const seconds = Number(match[1]) * (/^m/i.test(match[2]) ? 60 : 1);
   return seconds >= 5 && seconds <= 90 ? seconds : null;
 };
 
-export const wordBudgetFor = (seconds) => Math.round((seconds - TAIL_SECONDS) * WORDS_PER_SECOND);
+export const wordBudgetFor = (seconds: number): number =>
+  Math.round((seconds - TAIL_SECONDS) * WORDS_PER_SECOND);
 
-export const generateReelPlan = async (prompt) => {
+type ChatCompletionResponse = {
+  model?: string;
+  usage?: unknown;
+  choices?: Array<{
+    finish_reason?: string;
+    message?: { content?: string };
+  }>;
+};
+
+export const generateReelPlan = async (prompt: string): Promise<ReelPlan> => {
   const targetSeconds = extractTargetSeconds(prompt);
   const wordBudget = targetSeconds ? wordBudgetFor(targetSeconds) : null;
 
@@ -251,7 +316,7 @@ export const generateReelPlan = async (prompt) => {
     '{"title":"string","narration":"string","scenes":[{"kicker":"string","headline":"string","body":"string","visual":"orbit|bars|timeline|cards|pulse","accent":"#RRGGBB","durationWeight":1}],"style":{"mood":"string","palette":["#RRGGBB"]},"unsupported":["string"]}',
   ].join('\n');
 
-  const response = await postJson('/chat/completions', {
+  const response = await postJson<ChatCompletionResponse>('/chat/completions', {
     model: config.videoModel,
     messages: [
       { role: 'system', content: system },
@@ -277,27 +342,43 @@ export const generateReelPlan = async (prompt) => {
   }
 
   const raw = extractJson(content);
-  const scenes = Array.isArray(raw.scenes) ? raw.scenes.slice(0, 6) : [];
-  const normalizedScenes = (scenes.length ? scenes : fallbackScenes(prompt)).map(normalizeScene);
+  const rawScenes = Array.isArray(raw.scenes) ? (raw.scenes as unknown[]).slice(0, 6) : [];
+  const normalizedScenes: Scene[] = (rawScenes.length ? rawScenes : fallbackScenes(prompt)).map(
+    (scene, index) => normalizeScene(scene, index),
+  );
+  const rawStyle = (raw.style ?? {}) as { mood?: unknown; palette?: unknown };
 
   return {
     title: clampText(raw.title || 'Generated Reel', 64),
     narration: clampText(raw.narration || prompt, 3900),
     scenes: normalizedScenes,
     style: {
-      mood: clampText(raw.style?.mood || 'crisp, kinetic, modern', 80),
-      palette: Array.isArray(raw.style?.palette)
-        ? raw.style.palette.filter(isHex).slice(0, 5)
+      mood: clampText(rawStyle.mood || 'crisp, kinetic, modern', 80),
+      palette: Array.isArray(rawStyle.palette)
+        ? (rawStyle.palette as unknown[]).filter((c): c is string => isHex(c)).slice(0, 5)
         : ['#101317', '#35d6ff', '#ffcc66', '#ff6b8a'],
     },
     targetSeconds,
     unsupported: Array.isArray(raw.unsupported)
-      ? raw.unsupported.map((item) => clampText(item, 80)).filter(Boolean).slice(0, 8)
+      ? (raw.unsupported as unknown[])
+          .map((item) => clampText(item, 80))
+          .filter((item) => item.length > 0)
+          .slice(0, 8)
       : [],
   };
 };
 
-export const generateSpeech = async ({ text, outputPath, speed = 1 }) => {
+export type GenerateSpeechOptions = {
+  text: string;
+  outputPath: string;
+  speed?: number;
+};
+
+export const generateSpeech = async ({
+  text,
+  outputPath,
+  speed = 1,
+}: GenerateSpeechOptions): Promise<string> => {
   // Resolve through the allowlist so a stale .env value like
   // SPEECH_VOICE=alloy|meera|diya can't produce an AICredits 400.
   const { voice } = resolveSpeechVoice(config.speechModel, config.speechVoice);

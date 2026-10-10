@@ -4,12 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node server/index.js",
-    "start": "node server/index.js",
-    "remotion:studio": "remotion studio remotion/index.jsx",
-    "remotion:render": "remotion render remotion/index.jsx GeneratedReel reel/manual.mp4",
-    "render:smoke": "node scripts/render-smoke.js",
-    "check": "node scripts/check-env.js"
+    "dev": "tsx server/index.ts",
+    "start": "tsx server/index.ts",
+    "remotion:studio": "remotion studio remotion/index.tsx",
+    "remotion:render": "remotion render remotion/index.tsx GeneratedReel reel/manual.mp4",
+    "render:smoke": "tsx scripts/render-smoke.ts",
+    "check": "tsx scripts/check-env.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@remotion/bundler": "4.0.534",
@@ -21,6 +22,14 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "remotion": "4.0.534"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
   },
   "allowScripts": {
     "esbuild@0.28.1": true

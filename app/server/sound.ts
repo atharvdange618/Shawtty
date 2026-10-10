@@ -15,17 +15,20 @@
 // WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
 
 import fs from 'node:fs/promises';
+import type { Cue, SfxName } from '../types';
 
 const SR = 44100;
 const MUSIC_DB = -21;
 const TWO_PI = 2 * Math.PI;
-const nf = (midi) => 440 * 2 ** ((midi - 69) / 12);
-const dbToGain = (db) => 10 ** (db / 20);
+const nf = (midi: number): number => 440 * 2 ** ((midi - 69) / 12);
+const dbToGain = (db: number): number => 10 ** (db / 20);
+
+type Rng = () => number;
 
 // Seeded so the same plan always gets the same soundtrack (numpy used default_rng(7)).
-const makeRng = (seed = 7) => {
+const makeRng = (seed = 7): Rng => {
   let a = seed >>> 0;
-  const uniform = () => {
+  const uniform = (): number => {
     a = (a + 0x6d2b79f5) >>> 0;
     let t = a;
     t = Math.imul(t ^ (t >>> 15), t | 1);
@@ -36,7 +39,7 @@ const makeRng = (seed = 7) => {
   return () => Math.sqrt(-2 * Math.log(1 - uniform())) * Math.cos(TWO_PI * uniform());
 };
 
-const synth = (seconds, fn) => {
+const synth = (seconds: number, fn: (t: number, i: number, n: number) => number): Float64Array => {
   const n = Math.floor(seconds * SR);
   const x = new Float64Array(n);
   for (let i = 0; i < n; i += 1) x[i] = fn(i / SR, i, n);
@@ -44,7 +47,11 @@ const synth = (seconds, fn) => {
 };
 
 // Pitch-swept sine: phase is the running sum of the instantaneous frequency.
-const sweep = (seconds, freqAt, envAt) => {
+const sweep = (
+  seconds: number,
+  freqAt: (t: number) => number,
+  envAt: (t: number) => number,
+): Float64Array => {
   let phase = 0;
   return synth(seconds, (t) => {
     phase += (TWO_PI * freqAt(t)) / SR;
@@ -52,14 +59,14 @@ const sweep = (seconds, freqAt, envAt) => {
   });
 };
 
-const put = (buf, x, t, gain) => {
+const put = (buf: Float64Array, x: Float64Array, t: number, gain: number): void => {
   const start = Math.floor(t * SR);
   if (start < 0 || start >= buf.length) return;
   const end = Math.min(buf.length, start + x.length);
   for (let i = start; i < end; i += 1) buf[i] += x[i - start] * gain;
 };
 
-const peakNormalize = (x, db) => {
+const peakNormalize = (x: Float64Array, db: number): Float64Array => {
   let peak = 0;
   for (const v of x) peak = Math.max(peak, Math.abs(v));
   const g = dbToGain(db) / (peak + 1e-9);
@@ -68,10 +75,15 @@ const peakNormalize = (x, db) => {
 };
 
 // Bouncy 120 bpm pluck over a I-vi-IV-V style loop, with kick, snare, hats and bass.
-const music = (dur, rng) => {
+const music = (dur: number, rng: Rng): Float64Array => {
   const out = new Float64Array(Math.floor(SR * dur));
   const beat = 60 / 120;
-  const prog = [[60, [0, 4, 7]], [57, [0, 3, 7]], [65, [0, 4, 7]], [67, [0, 4, 7]]];
+  const prog: Array<[number, number[]]> = [
+    [60, [0, 4, 7]],
+    [57, [0, 3, 7]],
+    [65, [0, 4, 7]],
+    [67, [0, 4, 7]],
+  ];
 
   for (let t = 0, bar = 0; t < dur; t += beat * 4, bar += 1) {
     const [root, iv] = prog[bar % 4];
@@ -89,7 +101,7 @@ const music = (dur, rng) => {
   return out;
 };
 
-const swish = (rng, d = 0.35) => {
+const swish = (rng: Rng, d = 0.35): Float64Array => {
   const noise = synth(d, () => rng());
   // 4-tap moving average ('same' convolution) softens the noise into air.
   return synth(d, (_t, i, n) => {
@@ -99,11 +111,15 @@ const swish = (rng, d = 0.35) => {
   });
 };
 
-const pop = () => sweep(0.08, (tt) => 400 + (1600 * tt) / 0.08, (tt) => Math.exp(-tt * 30));
+const pop = (): Float64Array =>
+  sweep(0.08, (tt) => 400 + (1600 * tt) / 0.08, (tt) => Math.exp(-tt * 30));
 
-const SFX = { swish, pop };
+const SFX: Record<SfxName, (rng: Rng) => Float64Array> = {
+  swish: (rng) => swish(rng),
+  pop: () => pop(),
+};
 
-const writeWav = async (filePath, mono) => {
+const writeWav = async (filePath: string, mono: Float64Array): Promise<void> => {
   const frames = mono.length;
   const buf = Buffer.alloc(44 + frames * 4);
   buf.write('RIFF', 0);
@@ -126,8 +142,19 @@ const writeWav = async (filePath, mono) => {
   await fs.writeFile(filePath, buf);
 };
 
-// cues: [{ sfx: 'swish' | 'pop', t: seconds, db }]
-export const buildSoundtrack = async ({ durationInSeconds, cues, musicPath, sfxPath }) => {
+export type BuildSoundtrackOptions = {
+  durationInSeconds: number;
+  cues: Cue[];
+  musicPath: string;
+  sfxPath: string;
+};
+
+export const buildSoundtrack = async ({
+  durationInSeconds,
+  cues,
+  musicPath,
+  sfxPath,
+}: BuildSoundtrackOptions): Promise<void> => {
   const rng = makeRng(7);
   const dur = durationInSeconds + 0.1;
   const n = Math.floor(SR * dur);

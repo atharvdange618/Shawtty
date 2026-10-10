@@ -2,11 +2,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
-import { paths } from './config.js';
+import { paths } from './config';
+import type { ReelInputProps } from '../types';
 
-let bundlePromise = null;
+let bundlePromise: Promise<string> | null = null;
 
-const getBundle = () => {
+const getBundle = (): Promise<string> => {
   if (!bundlePromise) {
     bundlePromise = bundle({
       entryPoint: paths.remotionEntry,
@@ -16,7 +17,17 @@ const getBundle = () => {
   return bundlePromise;
 };
 
-export const renderReel = async ({ jobId, inputProps, onProgress }) => {
+export type RenderReelOptions = {
+  jobId: string;
+  inputProps: ReelInputProps;
+  onProgress?: (progress: number) => void;
+};
+
+export const renderReel = async ({
+  jobId,
+  inputProps,
+  onProgress,
+}: RenderReelOptions): Promise<string> => {
   const jobDir = path.join(paths.reelDir, jobId);
   const outputLocation = path.join(jobDir, 'reel.mp4');
 

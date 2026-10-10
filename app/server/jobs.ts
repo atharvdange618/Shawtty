@@ -1,23 +1,24 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { TAIL_SECONDS, generateReelPlan, generateSpeech } from './aicredits.js';
-import { getAudioDuration, mixSoundtrack } from './media.js';
-import { config, paths } from './config.js';
-import { renderReel } from './render.js';
-import { buildSoundtrack } from './sound.js';
-import { OVERLAP, timelineFor } from '../remotion/timeline.js';
+import { TAIL_SECONDS, generateReelPlan, generateSpeech } from './aicredits';
+import { getAudioDuration, mixSoundtrack } from './media';
+import { config, paths } from './config';
+import { renderReel } from './render';
+import { buildSoundtrack } from './sound';
+import { OVERLAP, timelineFor } from '../remotion/timeline';
+import type { Cue, Job, ReelInputProps, ReelPlan } from '../types';
 
 const FPS = 30;
 
-const jobs = new Map();
+const jobs = new Map<string, Job>();
 
-const makeJobId = () => {
+const makeJobId = (): string => {
   const stamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
   return `${stamp}-${randomUUID().slice(0, 8)}`;
 };
 
-const publicJob = (job) => ({
+const publicJob = (job: Job): Job => ({
   id: job.id,
   prompt: job.prompt,
   status: job.status,
@@ -32,19 +33,31 @@ const publicJob = (job) => ({
   audioUrl: job.audioUrl,
 });
 
-const writeJob = async (job) => {
+const writeJob = async (job: Job): Promise<void> => {
   const jobDir = path.join(paths.reelDir, job.id);
   await fs.mkdir(jobDir, { recursive: true });
   await fs.writeFile(path.join(jobDir, 'job.json'), `${JSON.stringify(publicJob(job), null, 2)}\n`);
 };
 
-const updateJob = async (job, patch) => {
+const updateJob = async (job: Job, patch: Partial<Job>): Promise<void> => {
   Object.assign(job, patch, { updatedAt: new Date().toISOString() });
   jobs.set(job.id, job);
   await writeJob(job);
 };
 
-const createInputProps = ({ job, plan, durationInSeconds, audioFile }) => ({
+type CreateInputPropsOptions = {
+  job: Job;
+  plan: ReelPlan;
+  durationInSeconds: number;
+  audioFile: string;
+};
+
+const createInputProps = ({
+  job,
+  plan,
+  durationInSeconds,
+  audioFile,
+}: CreateInputPropsOptions): ReelInputProps => ({
   jobId: job.id,
   title: plan.title,
   prompt: job.prompt,
@@ -56,7 +69,7 @@ const createInputProps = ({ job, plan, durationInSeconds, audioFile }) => ({
   createdAt: job.createdAt,
 });
 
-const runJob = async (job) => {
+const runJob = async (job: Job): Promise<void> => {
   try {
     await updateJob(job, {
       status: 'running',
@@ -125,15 +138,15 @@ const runJob = async (job) => {
 
     await updateJob(job, { step: 'Mixing music and sound effects', progress: 96 });
 
-    // Same frame math as timeline.js + GeneratedReel so cues land on the handoffs.
+    // Same frame math as timeline.ts + GeneratedReel so cues land on the handoffs.
     // `from` is the frame the incoming scene starts being visible (the cross-fade
     // runs for OVERLAP frames after it), so the swish sits at the fade's centre.
     const totalFrames = Math.ceil(Math.max(5, Math.min(90, durationInSeconds)) * FPS);
-    const cues = timelineFor(plan.scenes, totalFrames).flatMap((scene, index) => {
+    const cues: Cue[] = timelineFor(plan.scenes, totalFrames).flatMap((scene, index): Cue[] => {
       const start = scene.from / FPS;
-      const pop = { sfx: 'pop', t: start + 0.2, db: -22 }; // headline slam
+      const pop: Cue = { sfx: 'pop', t: start + 0.2, db: -22 }; // headline slam
       if (index === 0) return [pop];
-      const swish = { sfx: 'swish', t: start + OVERLAP / 2 / FPS, db: -17 };
+      const swish: Cue = { sfx: 'swish', t: start + OVERLAP / 2 / FPS, db: -17 };
       return [swish, pop];
     });
     const musicPath = path.join(jobDir, 'music.wav');
@@ -151,18 +164,20 @@ const runJob = async (job) => {
     });
   } catch (error) {
     console.error(`[job ${job.id}] failed:`, error);
+    const message = error instanceof Error ? error.message : String(error);
+    const trace = error instanceof Error ? error.stack || String(error) : String(error);
     await updateJob(job, {
       status: 'failed',
       step: 'Failed',
       progress: 100,
-      error: error.message || String(error),
-      trace: error.stack || String(error),
+      error: message,
+      trace,
     });
   }
 };
 
-export const createJob = async (prompt) => {
-  const job = {
+export const createJob = async (prompt: string): Promise<Job> => {
+  const job: Job = {
     id: makeJobId(),
     prompt,
     status: 'queued',
@@ -179,25 +194,26 @@ export const createJob = async (prompt) => {
 
   jobs.set(job.id, job);
   await writeJob(job);
-  runJob(job);
+  void runJob(job);
   return publicJob(job);
 };
 
-export const getJob = async (id) => {
-  if (jobs.has(id)) {
-    return publicJob(jobs.get(id));
+export const getJob = async (id: string): Promise<Job | null> => {
+  const cached = jobs.get(id);
+  if (cached) {
+    return publicJob(cached);
   }
 
   const jobPath = path.join(paths.reelDir, id, 'job.json');
   try {
     const content = await fs.readFile(jobPath, 'utf8');
-    return JSON.parse(content);
+    return JSON.parse(content) as Job;
   } catch {
     return null;
   }
 };
 
-export const listJobs = async () => {
+export const listJobs = async (): Promise<Job[]> => {
   const fromMemory = [...jobs.values()].map(publicJob);
   return fromMemory.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import {
   AbsoluteFill,
   Audio,
@@ -11,7 +11,8 @@ import {
 } from 'remotion';
 import { TransitionSeries, linearTiming } from '@remotion/transitions';
 import { fade } from '@remotion/transitions/fade';
-import { OVERLAP, timelineFor } from './timeline.js';
+import { OVERLAP, timelineFor } from './timeline';
+import type { ReelInputProps, Scene as SceneModel, TimelineScene, Visual } from '../types';
 
 // Flat-illustration explainer style (light canvas, ink + accent + white cards).
 // Every scene is a living vignette: ambient bob/drift never stops, elements pop
@@ -26,7 +27,7 @@ const INK = '#161616';
 const PAPER = '#F1F2F4';
 const CARD_SHADOW = '10px 10px 0 rgba(22,22,22,0.10)';
 
-const safeScenes = (scenes) => {
+const safeScenes = (scenes: SceneModel[]): SceneModel[] => {
   if (Array.isArray(scenes) && scenes.length) {
     return scenes.slice(0, 6);
   }
@@ -43,11 +44,20 @@ const safeScenes = (scenes) => {
   ];
 };
 
-const bob = (t, phase, amp, speed) => Math.sin(t * speed + phase) * amp;
+const bob = (t: number, phase: number, amp: number, speed: number): number =>
+  Math.sin(t * speed + phase) * amp;
 
 // ---------------------------------------------------------------- primitives
 
-const Pop = ({ t, delay = 0, children, style, rotate = 0 }) => {
+type PopProps = {
+  t: number;
+  delay?: number;
+  children: ReactNode;
+  style?: CSSProperties;
+  rotate?: number;
+};
+
+const Pop = ({ t, delay = 0, children, style, rotate = 0 }: PopProps) => {
   const p = spring({ frame: t - delay, fps: 30, config: { damping: 12, stiffness: 240 } });
   const scale = interpolate(p, [0, 1], [0.4, 1], { extrapolateRight: 'clamp' });
   const opacity = interpolate(p, [0, 0.3], [0, 1], {
@@ -67,11 +77,22 @@ const Pop = ({ t, delay = 0, children, style, rotate = 0 }) => {
   );
 };
 
-const FloatWrap = ({ t, phase = 0, amp = 12, speed = 0.09, children, style }) => (
+type FloatWrapProps = {
+  t: number;
+  phase?: number;
+  amp?: number;
+  speed?: number;
+  children: ReactNode;
+  style?: CSSProperties;
+};
+
+const FloatWrap = ({ t, phase = 0, amp = 12, speed = 0.09, children, style }: FloatWrapProps) => (
   <div style={{ transform: `translateY(${bob(t, phase, amp, speed)}px)`, ...style }}>{children}</div>
 );
 
-const PhoneMockup = ({ accent, screenLines = 3 }) => (
+type PhoneMockupProps = { accent: string; screenLines?: number };
+
+const PhoneMockup = ({ accent, screenLines = 3 }: PhoneMockupProps) => (
   <div
     style={{
       width: 190,
@@ -127,7 +148,9 @@ const PhoneMockup = ({ accent, screenLines = 3 }) => (
   </div>
 );
 
-const IconChip = ({ glyph, bg = '#ffffff', fg = INK }) => (
+type IconChipProps = { glyph: string; bg?: string; fg?: string };
+
+const IconChip = ({ glyph, bg = '#ffffff', fg = INK }: IconChipProps) => (
   <div
     style={{
       width: 96,
@@ -148,7 +171,9 @@ const IconChip = ({ glyph, bg = '#ffffff', fg = INK }) => (
   </div>
 );
 
-const ChatCard = ({ title, lines = 2, accent }) => (
+type ChatCardProps = { title: string; lines?: number; accent: string };
+
+const ChatCard = ({ lines = 2, accent }: ChatCardProps) => (
   <div
     style={{
       width: 300,
@@ -178,7 +203,9 @@ const ChatCard = ({ title, lines = 2, accent }) => (
   </div>
 );
 
-const StatChip = ({ value, label, accent }) => (
+type StatChipProps = { value: string; label: string; accent: string };
+
+const StatChip = ({ value, label, accent }: StatChipProps) => (
   <div
     style={{
       borderRadius: 999,
@@ -198,7 +225,9 @@ const StatChip = ({ value, label, accent }) => (
   </div>
 );
 
-const PersonFigure = ({ accent, flip = false }) => (
+type PersonFigureProps = { accent: string; flip?: boolean };
+
+const PersonFigure = ({ accent, flip = false }: PersonFigureProps) => (
   <div style={{ transform: flip ? 'scaleX(-1)' : 'none', width: 170, height: 330 }}>
     <div
       style={{
@@ -231,7 +260,9 @@ const PersonFigure = ({ accent, flip = false }) => (
   </div>
 );
 
-const Confetti = ({ t, accent, seeds = 10 }) => (
+type ConfettiProps = { t: number; accent: string; seeds?: number };
+
+const Confetti = ({ t, accent, seeds = 10 }: ConfettiProps) => (
   <>
     {Array.from({ length: seeds }).map((_, i) => {
       const x = (i * 173) % 900;
@@ -260,8 +291,10 @@ const Confetti = ({ t, accent, seeds = 10 }) => (
 
 // ---------------------------------------------------------------- vignettes
 
+type VignetteBodyProps = { t: number; accent: string };
+
 // orbit → network: phone hub, orbiting app chips, floating chat cards.
-const NetworkOrbit = ({ t, accent }) => {
+const NetworkOrbit = ({ t, accent }: VignetteBodyProps) => {
   const glyphs = ['f', 'in', 'M', '▶', '✉'];
   return (
     <div style={{ position: 'relative', width: 940, height: 860 }}>
@@ -313,7 +346,7 @@ const NetworkOrbit = ({ t, accent }) => {
 };
 
 // bars → dashboard: skyline backdrop + analytics card with growing bars.
-const CityDash = ({ t, accent }) => {
+const CityDash = ({ t, accent }: VignetteBodyProps) => {
   const towers = [300, 430, 250, 520, 360, 470, 290];
   const bars = [0.45, 0.7, 0.55, 0.9, 0.65, 1.0, 0.75];
   return (
@@ -385,7 +418,7 @@ const CityDash = ({ t, accent }) => {
 };
 
 // timeline → journey: drawing path, milestone nodes, traveler, person at the end.
-const Journey = ({ t, accent }) => {
+const Journey = ({ t, accent }: VignetteBodyProps) => {
   const nodes = ['01', '02', '03', '04'];
   const draw = interpolate(t, [4, 40], [0, 1], {
     extrapolateLeft: 'clamp',
@@ -478,7 +511,7 @@ const Journey = ({ t, accent }) => {
 };
 
 // cards → chat cluster: bubbles stagger in around a phone, typing dots alive.
-const ChatCluster = ({ t, accent }) => {
+const ChatCluster = ({ t, accent }: VignetteBodyProps) => {
   const bubbles = [
     { text: 'Did you see this?', me: false },
     { text: 'Sending it now ⚡', me: true },
@@ -542,7 +575,7 @@ const ChatCluster = ({ t, accent }) => {
 };
 
 // pulse → broadcast: avatar hub, radiating rings, notification badges.
-const Broadcast = ({ t, accent }) => {
+const Broadcast = ({ t, accent }: VignetteBodyProps) => {
   const cycle = (t % 45) / 45;
   const badges = ['★ 4.9', '✔ Sent', '◉ Live', '+1k'];
   return (
@@ -629,7 +662,9 @@ const Broadcast = ({ t, accent }) => {
   );
 };
 
-const Vignette = ({ visual, t, accent }) => {
+type VignetteProps = { visual: Visual; t: number; accent: string };
+
+const Vignette = ({ visual, t, accent }: VignetteProps) => {
   if (visual === 'bars') return <CityDash t={t} accent={accent} />;
   if (visual === 'timeline') return <Journey t={t} accent={accent} />;
   if (visual === 'cards') return <ChatCluster t={t} accent={accent} />;
@@ -639,7 +674,9 @@ const Vignette = ({ visual, t, accent }) => {
 
 // ---------------------------------------------------------------- text
 
-const Sticker = ({ text, accent, delay }) => {
+type StickerProps = { text: string; accent: string; delay: number };
+
+const Sticker = ({ text, accent, delay }: StickerProps) => {
   const frame = useCurrentFrame();
   const slam = spring({ frame: frame - delay, fps: 30, config: { damping: 9, stiffness: 280 } });
   const scale = interpolate(slam, [0, 1], [2.0, 1], { extrapolateRight: 'clamp' });
@@ -665,7 +702,7 @@ const Sticker = ({ text, accent, delay }) => {
   );
 };
 
-const KineticHeadline = ({ text }) => {
+const KineticHeadline = ({ text }: { text: string }) => {
   const frame = useCurrentFrame();
   const words = String(text || '').split(/\s+/);
   return (
@@ -695,7 +732,9 @@ const KineticHeadline = ({ text }) => {
   );
 };
 
-const Scene = ({ scene, index, total }) => {
+type SceneProps = { scene: TimelineScene; index: number; total: number };
+
+const Scene = ({ scene, index, total }: SceneProps) => {
   const frame = useCurrentFrame();
   const accent = scene.accent || '#E8A800';
   const bodyOpacity = interpolate(frame, [12, 24], [0, 1], {
@@ -743,7 +782,7 @@ const Scene = ({ scene, index, total }) => {
   );
 };
 
-export const GeneratedReel = ({ title, scenes, audioFile }) => {
+export const GeneratedReel = ({ title, scenes, audioFile }: ReelInputProps) => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
   const normalizedScenes = safeScenes(scenes);
@@ -783,8 +822,8 @@ export const GeneratedReel = ({ title, scenes, audioFile }) => {
       </div>
 
       <TransitionSeries>
-        {timeline.flatMap((scene, index) => {
-          const items = [];
+        {timeline.flatMap((scene, index): ReactElement[] => {
+          const items: ReactElement[] = [];
           if (index > 0) {
             items.push(
               <TransitionSeries.Transition
