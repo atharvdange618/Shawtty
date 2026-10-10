@@ -2,20 +2,21 @@
 
 Type a topic, get a finished 9:16 narrated motion-graphics reel. Built for small English-language creators who don't want to touch a timeline.
 
-The code that runs today lives in `research-skill/research/` (Express + Remotion). `plan.md` is where v2 goes next (research-to-reel pipeline).
+The code that runs today lives in `app/` (Express + Remotion). `docs/plan.md` is where v2 goes next (research-to-reel pipeline).
 
 ## Repo layout
 
 ```text
-plan.md                      # Reel Agent v2 plan (goal, architecture, milestones)
-netlogs-trail/               # Neatlogs integration task brief
-research-skill/research/     # Runnable MVP app
+app/                         # Runnable MVP app (Express + Remotion)
   server/                    # Express API + job pipeline (jobs, AICredits, render, media, sound)
   remotion/                  # Trusted renderer (GeneratedReel, 1080x1920 @30fps)
   public/                    # Browser prompt panel
   scripts/                   # check-env, render-smoke
-  hyperframes/               # HyperFrames port output + eval artifacts
-  .agents/.claude/agent/skills/remotion-to-hyperframes/  # vendored skill (3 runtimes)
+docs/                        # plan, revise-plan, HARNESS, research notes
+hyperframes/                 # HyperFrames port output + eval artifacts
+skills/                      # Vendored agent skills (git-workflow, remotion-to-hyperframes)
+skills-lock.json             # Skill install lock (source + hash)
+netlogs-trail/               # Neatlogs integration task brief
 ```
 
 ## Prerequisites
@@ -31,7 +32,7 @@ research-skill/research/     # Runnable MVP app
 
    ```bash
    git clone https://github.com/atharvdange618/Shawtty.git
-   cd Shawtty/research-skill/research
+   cd Shawtty/app
    ```
 
 2. Install dependencies:
@@ -133,7 +134,9 @@ research-skill/research/     # Runnable MVP app
 
 ## Docs
 
-- `plan.md`: v2 goal, staged pipeline, cost/reliability, open decisions.
-- `research-skill/research/README.md`: MVP app notes.
-- `research-skill/research/HARNESS.md`: pipeline contract, visual system,
-  HyperFrames eval (SSIM 0.922), verify commands.
+- `docs/plan.md`: v2 goal, staged pipeline, cost/reliability, open decisions.
+- `docs/revise-plan.md`: revised v2.1 reel architecture plan.
+- `docs/HARNESS.md`: pipeline contract, visual system, HyperFrames eval (SSIM 0.922), verify commands.
+- `docs/MOTION-GRAPHICS-RESEARCH.md`, `docs/INTEGRATIONS-RESEARCH.md`: research notes.
+- `app/README.md`: MVP app notes.
+- `netlogs-trail/`: Neatlogs integration task brief.
