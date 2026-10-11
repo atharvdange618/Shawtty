@@ -195,6 +195,7 @@ describe('buildCodegenPrompt', () => {
     expect(system).toMatch(/words: string\[\]/);
     expect(system).toMatch(/INSIDE config/);
     expect(system).toMatch(/COMMON ERRORS/);
+    expect(system).toMatch(/ONLY the strings left\/right\/up\/down/);
   });
 });
 
