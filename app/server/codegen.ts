@@ -116,6 +116,95 @@ const DENIED_PATTERNS: Array<{ re: RegExp; label: string }> = [
   { re: /<\s*image[\s>]/, label: '<image> tag' },
 ];
 
+export type ParsedTscError = { line: number; code: string; message: string };
+
+/** Parse the first `file(line,col): error TSxxxx: message` from tsc output. Pure. */
+export const parseTscError = (output: string): ParsedTscError | null => {
+  const m = String(output || '').match(/\((\d+),\d+\): error (TS\d+): ([^\n]+)/);
+  if (!m) return null;
+  return { line: Number(m[1]), code: m[2], message: m[3].trim().slice(0, 300) };
+};
+
+export type CodeBlock = { name: string; start: number; end: number; text: string };
+
+/**
+ * Extract the enclosing component/function block (1-based line) for surgical
+ * repair: nearest `const Name = ...=>` / `function Name(` above, balanced
+ * braces to its end. Pure. Returns null when no block found.
+ */
+export const extractBlock = (src: string, line: number): CodeBlock | null => {
+  const lines = src.split('\n');
+  if (line < 1 || line > lines.length) return null;
+  const lineStarts: number[] = [];
+  let cursor = 0;
+  for (const ln of lines) {
+    lineStarts.push(cursor);
+    cursor += ln.length + 1;
+  }
+  const errorOffset = lineStarts[line - 1];
+  const lineOf = (offset: number): number => {
+    let lo = 0;
+    let hi = lineStarts.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (lineStarts[mid] <= offset) lo = mid;
+      else hi = mid - 1;
+    }
+    return lo;
+  };
+  const startRe = /(?:const|let|var|function)\s+([A-Za-z_$][\w$]*)/;
+  // Walk upward for the nearest COMPONENT declaration (arrow or function —
+  // plain nested consts like `const s = spring(...)` are skipped). Every
+  // candidate range must actually contain the error offset.
+  let i = line - 1;
+  while (i >= 0) {
+    // Don't cross a previous block boundary (searching outward only).
+    if (/^\s*};?\s*$/.test(lines[i]) && i < line - 1) break;
+    const m = lines[i].match(startRe);
+    const isComponent =
+      !!m && (lines[i].includes('=>') || /^\s*(export\s+)?(async\s+)?function\b/.test(lines[i]));
+    if (m && isComponent) {
+      const absDeclStart = lineStarts[i];
+      // Body brace must DIRECTLY follow `=>` (whitespace only) for arrows —
+      // otherwise a later `{q.t}` JSX expression would be mistaken for a
+      // block body. Non-arrow functions use the first brace on/after decl.
+      let openRel = -1;
+      if (lines[i].includes('=>')) {
+        const arrowAt = src.indexOf('=>', absDeclStart);
+        if (arrowAt >= 0) {
+          const braceAt = src.indexOf('{', arrowAt);
+          if (braceAt >= 0 && /^\s*$/.test(src.slice(arrowAt + 2, braceAt)) && lineOf(braceAt) <= i + 1) {
+            openRel = braceAt;
+          }
+        }
+      } else {
+        const braceAt = src.indexOf('{', absDeclStart);
+        if (braceAt >= 0 && lineOf(braceAt) <= i + 1) openRel = braceAt;
+      }
+      if (openRel >= 0) {
+        const absEnd = balancedEnd(src, openRel);
+        if (absEnd >= errorOffset) {
+          const end = src[absEnd + 1] === ';' ? absEnd + 2 : absEnd + 1;
+          return { name: m[1], start: absDeclStart, end, text: src.slice(absDeclStart, end) };
+        }
+      }
+      // Single-expression body: only valid when the error is ON the decl line.
+      if (i === line - 1) {
+        const errLineEnd = errorOffset + lines[i].length;
+        return { name: m[1], start: absDeclStart, end: errLineEnd, text: src.slice(absDeclStart, errLineEnd) };
+      }
+    }
+    i -= 1;
+  }
+  return null;
+};
+
+/** Splice a repaired block back in — only when the old text is unique. Pure. */
+export const spliceBlock = (src: string, oldText: string, newText: string): string | null => {
+  if (!oldText || src.indexOf(oldText) !== src.lastIndexOf(oldText)) return null;
+  return src.replace(oldText, () => newText);
+};
+
 /** Find the balanced-brace block starting at the opening brace index. */
 const balancedEnd = (src: string, openIdx: number): number => {
   let depth = 0;
@@ -274,6 +363,45 @@ export const scanGeneratedCode = (code: string): ScanResult => {
     return { ok: false, error: 'missing required export: GeneratedVisual' };
   }
   return { ok: true };
+};
+
+const PATCH_SYSTEM = [
+  'You are a TypeScript surgeon patching ONE failing block inside a Remotion component.',
+  'Return strict JSON only: { "code": "<the FULL corrected block, same function name>" }.',
+  'Rules: keep the function name and overall shape; fix ONLY what the error demands; no new imports; no hooks/effects; every value its declared type; call sites must pass exactly the props the callee destructures (keep both flat).',
+].join('\n');
+
+/**
+ * Surgical repair: extract the block around the tsc error, ask the model
+ * for ONLY that block back, splice it in. Cheap (small prompt) and
+ * preserves the rest of the component — full regeneration is the fallback,
+ * not the first resort. Returns the patched source or null.
+ */
+export const patchRepair = async ({
+  code,
+  typeError,
+}: {
+  code: string;
+  typeError: string;
+}): Promise<string | null> => {
+  const parsed = parseTscError(typeError);
+  if (!parsed) return null;
+  const block = extractBlock(code, parsed.line);
+  if (!block) return null;
+  const res = await generateVisualCode({
+    system: PATCH_SYSTEM,
+    user: [
+      `TypeScript error ${parsed.code}: ${parsed.message}`,
+      '',
+      `Failing block (${block.name}):`,
+      block.text,
+      '',
+      'Return ONLY the corrected block as JSON {"code": "..."}.',
+    ].join('\n'),
+  });
+  const patch = res.code?.trim();
+  if (!patch) return null;
+  return spliceBlock(code, block.text, patch);
 };
 
 // ---------------------------------------------------------------- Entry builder
@@ -478,7 +606,22 @@ export const buildCustomVisual = async ({
     const visualPath = path.join(jobDir, GENERATED_VISUAL_FILE);
     let typeError = await typecheckVisualCode(visualPath);
     if (typeError) {
-      console.warn(`[job ${jobId}] codegen typecheck failed — one repair round.`);
+      // Surgical repair first: patch the failing block (cheap, preserves the
+      // rest). Up to 2 patch rounds, then one full regeneration as fallback.
+      for (let round = 1; round <= 2 && typeError; round += 1) {
+        console.warn(`[job ${jobId}] codegen typecheck failed — patch round ${round}.`);
+        const patched = await patchRepair({ code, typeError });
+        if (patched && scanGeneratedCode(patched).ok) {
+          code = patched;
+          await writeFiles(code);
+          typeError = await typecheckVisualCode(visualPath);
+        } else {
+          break;
+        }
+      }
+    }
+    if (typeError) {
+      console.warn(`[job ${jobId}] patch repair failed — one full regeneration round.`);
       const fixed = await produce(`TypeScript errors in your component:\n${typeError}`);
       if (fixed) {
         await writeFiles(fixed);
