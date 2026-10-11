@@ -110,4 +110,21 @@ export const ATLAS_LAW = [
   '- Camera: slow drift (scale 1→1.08), card tilt in perspective, push-in to focus, subtle handheld wobble, slide-up reveals. Move the camera OR the subject — rarely both.',
 ].join('\n');
 
-export const CODEGEN_SYSTEM = [ROLE, CANVAS_LAW, MOTION_LAW, DESIGN_LAW, SFX_LAW, ATLAS_LAW, REMOTION_LAW, CONTINUITY_LAW, EXPORT_CONTRACT].join('\n\n');
+export const THEME_PICK = [
+  'THEME PICK (match the look to the topic — never one look for everything):',
+  '- LIGHT paper explainer (paper bg, dot grid, ink outlines, hard offset shadows): how-it-works education, tutorials, step-by-step systems, daytime mobile viewing. Flat vector mockups, monospace data, one presenter figure pinned to the side.',
+  '- DARK premium kinetic (near-black bg, glow accents): tech launches, cinematic stories, finance, evening viewing. Centered stack: kicker → big title → visual → bottom line. Before/after duels with red ✕ vs green ✓ labels.',
+  '- Real-photo stories (people, places, lifestyle): full-bleed Ken Burns photos with graphics overlaid, never bare slideshows.',
+].join('\n');
+
+export const REFERENCE_LAW = [
+  'REFERENCE COMPOSITION (what makes explainer frames read instantly):',
+  '- PERSISTENT STAGE: side-anchored presenter + content zone keep IDENTICAL geometry across beats; meaning builds by addition (mockups appear, checklists extend, tokens accumulate). Never rearrange mid-story.',
+  '- LIGHT PLATE PATTERN: bottom-center caption plate — paper fill, ink border, hard offset shadow — with the KEYWORD in accent color. One idea per frame, huge readable type, generous whitespace.',
+  '- DARK DUEL PATTERN: symmetric before/after panels with ✕/✓ verdict labels, progress bars that fill, glass chips for entities. Accent decides the winner’s side only.',
+  '- DEVICE MOCKUPS: outlined phone/server/card frames with labeled slots (monospace for data); empty slots are fine mid-build, they fill as the beat explains.',
+  '- DENSITY: every beat fills its frame deliberately — hero + supporting + detail. Vast empty zones and single floating sentences are FAILED beats. Elements enter from INSIDE the frame (scale/fade), never slide in blurred from off-screen.',
+  '- No element may be mid-entrance when its beat ends: everything settles ≥1s before the cut so no frame reads as broken motion blur.',
+].join('\n');
+
+export const CODEGEN_SYSTEM = [ROLE, CANVAS_LAW, MOTION_LAW, DESIGN_LAW, SFX_LAW, ATLAS_LAW, REMOTION_LAW, CONTINUITY_LAW, THEME_PICK, REFERENCE_LAW, EXPORT_CONTRACT].join('\n\n');

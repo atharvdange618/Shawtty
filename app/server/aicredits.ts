@@ -524,6 +524,7 @@ export type VoiceScriptResult = {
   script: string;
   mood: string;
   palette: string[];
+  mode: 'dark' | 'light';
 };
 
 export const generateVoiceScript = async (
@@ -545,6 +546,7 @@ export const generateVoiceScript = async (
     '3. CLEAR CONCEPT CONTRASTS: For explainer topics (e.g. AI vs AGI), clearly contrast narrow task-specific tools with general autonomous human-level intelligence.',
     `4. EXACT WORD BUDGET: The voiceover speaks at ~2.5 words/second. The script must be approximately ${wordBudget} words (between ${wordBudget - 5} and ${wordBudget + 5} words) to perfectly fill ${targetSeconds || 45} seconds. Count words accurately before answering.`,
     '5. NO STAGE DIRECTIONS OR BRACKETS: Return ONLY the exact words to be spoken aloud by the voice actor.',
+    '6. MODE PICK: "light" for how-it-works education, tutorials, step-by-step explainers (paper background, flat vectors); "dark" for tech, launches, finance, cinematic stories. When unsure, pick dark.',
   ].join('\n');
 
   const user = [
@@ -559,6 +561,7 @@ export const generateVoiceScript = async (
       script: 'string (the exact spoken narration words)',
       mood: 'string (e.g. high-energy futuristic, cinematic tragic, fast-paced tech)',
       palette: ['#RRGGBB', '#RRGGBB', '#RRGGBB', '#RRGGBB', '#RRGGBB', '#RRGGBB'],
+      mode: 'dark|light',
     }),
   ].join('\n');
 
@@ -580,10 +583,13 @@ export const generateVoiceScript = async (
   const theme = THEMES.has(rawTheme) ? rawTheme : detectedTheme;
   const script = String(raw.script || prompt).trim();
 
+  const mode = String(raw.mode || '').toLowerCase() === 'light' ? 'light' : 'dark';
+
   return {
     title: clampText(raw.title || 'Generated Reel', 64),
     theme,
     script,
+    mode,
     mood: clampText(raw.mood || `${theme} dynamic, kinetic`, 80),
     palette: (() => {
       const userColors = extractUserColors(prompt);
@@ -604,6 +610,7 @@ export const choreographScenes = async ({
   speechSeconds,
   researchContext,
   beats,
+  mode = 'dark',
 }: {
   prompt: string;
   title: string;
@@ -613,6 +620,8 @@ export const choreographScenes = async ({
   researchContext?: string;
   /** Fixed timestamped beats from the real voice transcript. When provided, the LLM designs exactly one scene per beat — it does NOT re-cut the script. */
   beats?: TimedBeat[];
+  /** Light paper explainer vs dark premium. Defaults to dark. */
+  mode?: 'dark' | 'light';
 }): Promise<Scene[]> => {
   // Deliberate pacing: cuts average ~3.5-4.5s per shot so viewers can
   // actually process each idea — never more scenes than the audio can hold
@@ -693,6 +702,7 @@ export const choreographScenes = async ({
     'Choreograph rapid-paced motion graphics scenes for this script:',
     `Title: ${title}`,
     `Theme: ${theme}`,
+    `Mode: ${mode === 'light' ? 'light paper explainer (paper bg, ink outlines, flat vectors, presenter side)' : 'dark premium kinetic'}`,
     `Exact Duration: ${speechSeconds.toFixed(1)}s`,
     `Target Scene Count: ${targetSceneCount} rapid visual shots`,
     '',
