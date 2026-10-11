@@ -62,7 +62,7 @@ export const REMOTION_LAW = [
   '- No Audio/Video elements (the shell owns sound). No <Sequence>/<Series> (each beat is already its own timed scene). <Sequence from/durationInFrames take plain numbers only — never objects.',
   '- TypeScript strict applies: every prop must exist on the component, every value its declared type. If unsure about an API, use plain <svg> elements instead of guessing component props.',
   '- EXACT signatures (copy these, never improvise): spring({ frame, fps, config: { damping: 12, stiffness: 140 }, from: 0, to: 1 }) — damping/stiffness/mass live INSIDE config, never top-level. interpolate(value, [inMin, inMax], [outMin, outMax], { easing: Easing.bezier(0.22, 1, 0.36, 1), extrapolateLeft: "clamp", extrapolateRight: "clamp" }) — input and output ranges are same-length arrays. Easing and useVideoConfig come from "remotion".',
-  '- COMMON ERRORS (do not repeat these): top-level damping/stiffness on spring() → move inside config; from/to props on shapes → use length/direction; mismatched interpolate range lengths; reading .length of possibly-undefined arrays (guard with ?? []); unused imports (every import must be used).',
+  '- COMMON ERRORS (do not repeat these): top-level damping/stiffness on spring() → move inside config; from/to props on shapes → use length/direction; direction takes ONLY the strings left/right/up/down — never a number, never a variable holding a number; mismatched interpolate range lengths; reading .length of possibly-undefined arrays (guard with ?? []); unused imports (every import must be used).',
 ].join('\n');
 
 export const CONTINUITY_LAW = [
