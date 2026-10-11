@@ -148,5 +148,11 @@ vite.config.ts.timestamp-*
 # Turbo Repo
 .turbo
 
-# Local agent state (opencode) — vendored skills live in skills/ + skills-lock.json
+# Local agent state (opencode) ï¿½ vendored skills live in skills/ + skills-lock.json
 .agents/
+
+
+
+downloads/
+our-output
+

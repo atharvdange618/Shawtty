@@ -119,6 +119,8 @@ export type ReelStyle = {
   mood: string;
   palette: string[];
   backgroundStyle?: string;
+  /** Light paper explainer vs dark premium kinetic. Defaults to dark. */
+  mode?: 'dark' | 'light';
 };
 
 export type ReelPlan = {

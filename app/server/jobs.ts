@@ -227,6 +227,7 @@ const runJob = async (job: Job): Promise<void> => {
       speechSeconds,
       researchContext: research.contextText,
       beats: timedBeats,
+      mode: scriptData.mode,
     });
 
     // SYSTEM REVIEW (timed): visuals/copy per beat + start/end/wordTimings
@@ -266,6 +267,7 @@ const runJob = async (job: Job): Promise<void> => {
         theme: scriptData.theme,
         mood: scriptData.mood,
         palette: scriptData.palette,
+        mode: scriptData.mode,
       },
       searchInsights: research.insights,
       searchQuery: research.query,

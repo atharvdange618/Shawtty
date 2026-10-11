@@ -292,7 +292,20 @@ export const GeneratedReel = ({ theme, scenes, audioFile, style }: ReelInputProp
     : timelineFor(normalizedScenes, durationInFrames);
 
   const activeTheme: ReelTheme = theme || style?.theme || 'tech';
-  const themeStyle = THEME_STYLES[activeTheme] || THEME_STYLES.tech;
+  // Light paper explainer mode overrides the dark stage (bg + text tokens);
+  // bespoke components already receive matching tokens via props.
+  const LIGHT_STAGE: ThemeStyle = {
+    bg: '#F7F8FA',
+    orb1: 'rgba(79, 70, 229, 0.10)',
+    orb2: 'rgba(8, 145, 178, 0.10)',
+    cardBg: '#FFFFFF',
+    cardBorder: '#E2E5EB',
+    textPrimary: '#0F172A',
+    textSecondary: '#64748B',
+    pillBg: 'rgba(79, 70, 229, 0.10)',
+    defaultAccent: style?.palette?.[1] ?? '#4F46E5',
+  };
+  const themeStyle = style?.mode === 'light' ? LIGHT_STAGE : THEME_STYLES[activeTheme] || THEME_STYLES.tech;
 
   return (
     <AbsoluteFill style={{ background: themeStyle.bg, overflow: 'hidden', fontFamily }}>

@@ -13,7 +13,7 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import { generateVisualCode } from './aicredits';
 import { paths } from './config';
-import { ATLAS_LAW, CANVAS_LAW, CONTINUITY_LAW, DESIGN_LAW, EXPORT_CONTRACT, MOTION_LAW, REMOTION_LAW, ROLE, SFX_LAW } from './prompts';
+import { ATLAS_LAW, CANVAS_LAW, CONTINUITY_LAW, DESIGN_LAW, EXPORT_CONTRACT, MOTION_LAW, REFERENCE_LAW, REMOTION_LAW, ROLE, SFX_LAW } from './prompts';
 import type { ReelPlan } from '../types';
 
 export const GENERATED_VISUAL_FILE = 'visual.generated.tsx';
@@ -42,12 +42,14 @@ export const buildCodegenPrompt = ({
   mood,
   tokens,
   beats,
+  mode = 'dark',
 }: {
   title: string;
   theme: string;
   mood: string;
   tokens: { bg: string; text: string; muted: string; accent: string; accent2: string };
   beats: Array<CodegenBeat & { headline: string; visualDataJson: string }>;
+  mode?: 'dark' | 'light';
 }): { system: string; user: string } => {
   const system = [
     ROLE,
@@ -59,6 +61,7 @@ export const buildCodegenPrompt = ({
     ATLAS_LAW,
     REMOTION_LAW,
     CONTINUITY_LAW,
+    REFERENCE_LAW,
     EXPORT_CONTRACT,
   ].join('\n\n');
 
@@ -70,7 +73,7 @@ export const buildCodegenPrompt = ({
     .join('\n\n');
 
   const user = [
-    `Video: "${title}" (theme ${theme}, mood ${mood}).`,
+    `Video: "${title}" (theme ${theme}, mood ${mood}, mode ${mode} — ${mode === 'light' ? 'paper background, ink outlines, flat vectors, light-plate captions' : 'dark premium kinetic, glow accents'}).`,
     `Tokens: ${JSON.stringify(tokens)}.`,
     '',
     `Design EXACTLY ${beats.length} beat compositions (beatIndex 0–${beats.length - 1}):`,
@@ -331,6 +334,33 @@ export const buildEntrySource = (): string =>
 
 // ---------------------------------------------------------------- Orchestration
 
+/**
+ * Theme tokens per plan mode — light paper explainer vs dark premium.
+ * Exported for tests; the LLM receives these, never hardcoded colors.
+ */
+export const tokensForPlan = (plan: ReelPlan): {
+  bg: string;
+  text: string;
+  muted: string;
+  accent: string;
+  accent2: string;
+} =>
+  plan.style.mode === 'light'
+    ? {
+        bg: '#F7F8FA',
+        text: '#0F172A',
+        muted: '#64748B',
+        accent: plan.style.palette[1] ?? '#4F46E5',
+        accent2: plan.style.palette[2] ?? '#0891B2',
+      }
+    : {
+        bg: '#0B0D12',
+        text: '#F2F4F8',
+        muted: '#9AA3B2',
+        accent: plan.style.palette[1] ?? '#7C83FF',
+        accent2: plan.style.palette[2] ?? '#22D3EE',
+      };
+
 export const buildCustomVisual = async ({
   jobId,
   plan,
@@ -339,13 +369,7 @@ export const buildCustomVisual = async ({
   plan: ReelPlan;
 }): Promise<string | null> => {
   try {
-    const tokens = {
-      bg: '#0B0D12',
-      text: '#F2F4F8',
-      muted: '#9AA3B2',
-      accent: plan.style.palette[1] ?? '#7C83FF',
-      accent2: plan.style.palette[2] ?? '#22D3EE',
-    };
+    const tokens = tokensForPlan(plan);
     const beats = plan.scenes.map((s) => ({
       text: s.narrationBeat || s.body,
       start: typeof s.start === 'number' ? s.start : 0,
@@ -362,6 +386,7 @@ export const buildCustomVisual = async ({
       mood: plan.style.mood,
       tokens,
       beats,
+      mode: plan.style.mode ?? 'dark',
     };
     const jobDir = path.join(paths.reelDir, jobId);
     await fs.mkdir(jobDir, { recursive: true });
@@ -501,13 +526,7 @@ export const repairVisualCode = async ({
   error: string;
 }): Promise<string | null> => {
   try {
-    const tokens = {
-      bg: '#0B0D12',
-      text: '#F2F4F8',
-      muted: '#9AA3B2',
-      accent: plan.style.palette[1] ?? '#7C83FF',
-      accent2: plan.style.palette[2] ?? '#22D3EE',
-    };
+    const tokens = tokensForPlan(plan);
     const beats = plan.scenes.map((s) => ({
       text: s.narrationBeat || s.body,
       start: typeof s.start === 'number' ? s.start : 0,

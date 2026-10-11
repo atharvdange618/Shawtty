@@ -1,7 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { buildCodegenPrompt, buildEntrySource, scanGeneratedCode, stripFrozenMotion, typecheckVisualCode } from './codegen';
+import { buildCodegenPrompt, buildEntrySource, scanGeneratedCode, stripFrozenMotion, tokensForPlan, typecheckVisualCode } from './codegen';
+import type { ReelPlan } from '../types';
 
 const GOOD_COMPONENT = `
 import { interpolate, spring } from "remotion";
@@ -171,6 +172,10 @@ describe('buildCodegenPrompt', () => {
     expect(system).toMatch(/@remotion\/shapes/);
     expect(system).toMatch(/IDENTICAL coordinates/);
     expect(system).toMatch(/useVideoConfig/);
+    expect(system).toMatch(/PERSISTENT STAGE/);
+    expect(system).toMatch(/LIGHT PLATE PATTERN/);
+    expect(system).toMatch(/DARK DUEL PATTERN/);
+    expect(system).toMatch(/enter from INSIDE/);
     expect(user).toMatch(/Beat 0/);
     expect(user).toMatch(/1 token/);
     expect(user).toMatch(/Token spend/);
@@ -190,6 +195,36 @@ describe('buildCodegenPrompt', () => {
     expect(system).toMatch(/words: string\[\]/);
     expect(system).toMatch(/INSIDE config/);
     expect(system).toMatch(/COMMON ERRORS/);
+  });
+});
+
+describe('tokensForPlan', () => {
+  const plan = (mode?: 'dark' | 'light'): ReelPlan => ({
+    title: 't',
+    narration: 'n',
+    scenes: [],
+    style: { mood: 'm', palette: ['#000000', '#FF6B00', '#22D3EE'], ...(mode ? { mode } : {}) },
+    targetSeconds: null,
+  });
+
+  it('emits dark premium tokens by default', () => {
+    expect(tokensForPlan(plan())).toEqual({
+      bg: '#0B0D12',
+      text: '#F2F4F8',
+      muted: '#9AA3B2',
+      accent: '#FF6B00',
+      accent2: '#22D3EE',
+    });
+  });
+
+  it('emits light paper tokens for education explainers', () => {
+    expect(tokensForPlan(plan('light'))).toEqual({
+      bg: '#F7F8FA',
+      text: '#0F172A',
+      muted: '#64748B',
+      accent: '#FF6B00',
+      accent2: '#22D3EE',
+    });
   });
 });
 
