@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { buildCodegenPrompt, buildEntrySource, scanGeneratedCode, stripFrozenMotion, tokensForPlan, typecheckVisualCode } from './codegen';
+import { buildCodegenPrompt, buildEntrySource, extractBlock, parseTscError, scanGeneratedCode, spliceBlock, stripFrozenMotion, tokensForPlan, typecheckVisualCode } from './codegen';
 import type { ReelPlan } from '../types';
 
 const GOOD_COMPONENT = `
@@ -226,6 +226,63 @@ describe('tokensForPlan', () => {
       accent: '#FF6B00',
       accent2: '#22D3EE',
     });
+  });
+});
+
+describe('surgical repair helpers', () => {
+  it('parses tsc error locations', () => {
+    const parsed = parseTscError(
+      "reel/abc/visual.generated.tsx(278,7): error TS2741: Property 'p' is missing in type X but required in type Y.",
+    );
+
+    expect(parsed).toEqual({ line: 278, code: 'TS2741', message: "Property 'p' is missing in type X but required in type Y." });
+    expect(parseTscError('no errors here')).toBeNull();
+  });
+
+  it('extracts the enclosing block and splices patches back', () => {
+    const src = [
+      'import { spring } from "remotion";',
+      'const A = (p: { t: number }) => {',
+      '  const s = spring({ frame: p.t, fps: 30, config: { damping: 14 } });',
+      '  return <div>{s}</div>;',
+      '};',
+      'const B = (p: { t: number }) => {',
+      '  return <span>{p.t}</span>;',
+      '};',
+    ].join('\n');
+
+    const block = extractBlock(src, 3);
+    expect(block?.name).toBe('A');
+    expect(block?.text).toContain('spring({ frame: p.t');
+    expect(block?.text).not.toContain('const B');
+
+    const patch = block!.text.replace('damping', 'stiffness');
+    const spliced = spliceBlock(src, block!.text, patch);
+    expect(spliced).toContain('stiffness');
+    expect(spliced).toContain('const B');
+  });
+
+  it('refuses ambiguous splices', () => {
+    expect(spliceBlock('aaa aa', 'aa', 'b')).toBeNull();
+    expect(spliceBlock('aaa', '', 'b')).toBeNull();
+    expect(extractBlock('no blocks here', 1)).toBeNull();
+    expect(extractBlock('const x = 1;', 99)).toBeNull();
+  });
+
+  it('reproduces the TS2741 wrapper-mismatch repair end to end (pure part)', () => {
+    const src = [
+      'type P = { t: number };',
+      'const Beat = ({ p }: { p: P }) => {',
+      '  return <div>{p.t}</div>;',
+      '};',
+      'export const GeneratedVisual = (q: { t: number }) => <Beat t={q.t} />;',
+    ].join('\n');
+    const block = extractBlock(src, 5);
+    expect(block?.name).toBe('GeneratedVisual');
+    // The fix wraps the call site: <Beat p={{ t: q.t }} />.
+    const fixedBlock = block!.text.replace('<Beat t={q.t} />', '<Beat p={{ t: q.t }} />');
+    const spliced = spliceBlock(src, block!.text, fixedBlock);
+    expect(spliced).toContain('<Beat p={{ t: q.t }} />');
   });
 });
 
