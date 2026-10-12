@@ -1,0 +1,38 @@
+<pasted_content id="47e6">
+athar@atharvdange UCRT64 ~/Documents/Github/Shawtty/app (main)
+$ npm run remotion:render
+
+> ai-reel-agent@0.1.0 remotion:render
+> remotion render remotion/index.tsx GeneratedReel reel/manual.mp4
+
+Bundled code         ━━━━━━━━━━━━━━━━━━ 1374ms
+Composition          GeneratedReel
+Codec                h264
+Output               reel/manual.mp4
+Concurrency          6x
+Rendering frames     ━━━━━━━━━━━━━━━━━━   0/300
+Encoding video       ━━━━━━━━━━━━━━━━━━   0/300
+Symbolicating minified error message...
+An error occurred while rendering frame 2: failed and template fallback i
+ Error  Bespoke visual component missing — codegen failed and template fallback is disabled. See job logs.
+
+at remotion/GeneratedReel.tsx:233
+231 │ // failed, and the job fails loudly instead of airing filler graphics.
+232 │ const Custom = useCustomVisual();
+233 │ if (!Custom) {
+234 │   throw new Error(
+235 │     'Bespoke visual component missing — codegen failed and template fallback is disabled. See job logs.',
+236 │   );
+
+at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.production.js:4350)
+at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.production.js:6496)
+at beginWork (node_modules/react-dom/cjs/react-dom-client.production.js:7472)
+at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.production.js:11304)
+at workLoopSync (node_modules/react-dom/cjs/react-dom-client.production.js:11181)
+at renderRootSync (node_modules/react-dom/cjs/react-dom-client.production.js:11162)
+at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.production.js:10727)
+at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.production.js:12077)
+at performWorkUntilDeadline (node_modules/scheduler/cjs/scheduler.production.js:150)
+</pasted_content id="47e6">
+
+, why did i get this error?
