@@ -3,8 +3,6 @@
 // Declared as `type` aliases, not `interface`: Remotion constrains composition
 // props to `Record<string, unknown>`, and only type literals get an implicit
 // index signature, so interfaces would fail that assignment.
-import type { ReactElement } from 'react';
-
 export type ReelTheme =
   | 'storytelling'
   | 'tech'
@@ -181,8 +179,6 @@ export type GeneratedVisualProps = {
   /** Resolved theme tokens — no theme imports needed in generated code. */
   theme: { bg: string; text: string; muted: string; accent2: string };
 };
-
-export type GeneratedVisualComponent = (props: GeneratedVisualProps) => ReactElement | null;
 
 export type SfxName =
   | 'swish'
