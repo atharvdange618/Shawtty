@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Account — Shawtty</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: '#0b0d12',
+              'ink-2': '#11141b',
+              'ink-3': '#181c25',
+              'ink-4': '#20252f',
+              line: '#232836',
+              'line-2': '#313848',
+              fg: '#eceef3',
+              'fg-2': '#a3a9b8',
+              'fg-3': '#6b7284',
+              mblue: '#58c4dd',
+              myellow: '#f2d45c',
+              mgreen: '#83c167',
+              mred: '#fc6255',
+            },
+            fontFamily: {
+              display: ['Newsreader', 'ui-serif', 'Georgia', 'serif'],
+              sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+            },
+            fontSize: {
+              '2xs': '11px',
+              '3xs': '10px',
+            },
+            borderRadius: {
+              sm: '6px',
+              md: '10px',
+              lg: '14px',
+              xl: '20px',
+              phone: '34px',
+            },
+            boxShadow: {
+              card: '0 1px 0 0 rgba(255, 255, 255, 0.04) inset, 0 8px 24px -12px rgba(0, 0, 0, 0.6)',
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/toast.js"></script>
+  </head>
+  <body class="bg-ink font-sans text-fg min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <!-- Brand Logo Header -->
+      <div class="flex justify-center mb-6">
+        <a href="/" class="flex items-center gap-2.5 text-decoration-none">
+          <svg viewBox="0 0 18 28" style="height: 28px; width: 18px;">
+            <rect x="0.75" y="0.75" width="16.5" height="26.5" rx="3.5" fill="none" stroke="#eceef3" stroke-width="1.5" />
+            <path d="M7 10.5 L12.5 14 L7 17.5 Z" fill="#f2d45c" />
+          </svg>
+          <span class="font-display text-3xl tracking-tight text-fg font-normal">Shawtty</span>
+        </a>
+      </div>
+
+      <!-- Auth Card -->
+      <div class="rounded-xl border border-line bg-ink-2 p-7 shadow-card">
+        <div class="mb-6">
+          <span class="font-mono text-3xs uppercase tracking-widest text-mgreen">NEW ACCOUNT</span>
+          <h1 class="mt-1 font-display text-3xl font-light text-fg">Start creating</h1>
+          <p class="mt-1.5 text-sm font-light text-fg-2">Create an account to generate and save your reels.</p>
+        </div>
+
+        <form id="signupForm" class="flex flex-col gap-4">
+          <div>
+            <label class="flex items-center gap-1.5 font-mono text-3xs uppercase tracking-widest text-fg-3 mb-1.5" for="signupName">
+              <i class="ti ti-user text-xs"></i>
+              <span>Full Name</span>
+            </label>
+            <input
+              type="text"
+              id="signupName"
+              required
+              autocomplete="name"
+              placeholder="Alex Smith"
+              class="w-full bg-ink border border-line-2 rounded-sm px-3.5 py-2.5 text-sm text-fg outline-none focus:border-myellow placeholder:text-fg-3 transition-colors"
+            />
+          </div>
+
+          <div>
+            <label class="flex items-center gap-1.5 font-mono text-3xs uppercase tracking-widest text-fg-3 mb-1.5" for="signupEmail">
+              <i class="ti ti-mail text-xs"></i>
+              <span>Email</span>
+            </label>
+            <input
+              type="email"
+              id="signupEmail"
+              required
+              autocomplete="email"
+              placeholder="you@domain.com"
+              class="w-full bg-ink border border-line-2 rounded-sm px-3.5 py-2.5 text-sm text-fg outline-none focus:border-myellow placeholder:text-fg-3 transition-colors"
+            />
+          </div>
+
+          <div>
+            <label class="flex items-center gap-1.5 font-mono text-3xs uppercase tracking-widest text-fg-3 mb-1.5" for="signupPassword">
+              <i class="ti ti-lock text-xs"></i>
+              <span>Password</span>
+            </label>
+            <input
+              type="password"
+              id="signupPassword"
+              required
+              minlength="8"
+              autocomplete="new-password"
+              placeholder="At least 8 characters"
+              class="w-full bg-ink border border-line-2 rounded-sm px-3.5 py-2.5 text-sm text-fg outline-none focus:border-myellow placeholder:text-fg-3 transition-colors"
+            />
+          </div>
+
+          <button
+            type="submit"
+            id="signupSubmitBtn"
+            class="mt-2 w-full rounded-sm bg-myellow py-2.5 text-sm font-medium text-ink hover:bg-fg transition-colors flex items-center justify-center gap-1.5"
+          >
+            <span>Create Account</span>
+            <i class="ti ti-arrow-right"></i>
+          </button>
+        </form>
+
+        <!-- Feedback Notification -->
+        <div id="signupFeedback" class="mt-4 text-xs font-mono" hidden></div>
+
+        <!-- Footer link to Sign In -->
+        <div class="mt-6 pt-5 border-t border-line text-center text-xs text-fg-3">
+          Already have an account?
+          <a href="/login" class="text-myellow hover:underline font-medium">Sign in</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('signupForm');
+
+        form?.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const name = document.getElementById('signupName')?.value.trim();
+          const email = document.getElementById('signupEmail')?.value.trim();
+          const password = document.getElementById('signupPassword')?.value;
+          const btn = document.getElementById('signupSubmitBtn');
+
+          if (!name || !email || !password) return;
+          if (password.length < 8) {
+            toast.warning('Password must be at least 8 characters.');
+            return;
+          }
+
+          btn.disabled = true;
+          const loadingToast = toast.loading('Creating your Shawtty account...');
+
+          try {
+            const res = await fetch('/api/auth/sign-up/email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password, name }),
+            });
+
+            const data = await res.json();
+            loadingToast.dismiss();
+
+            if (res.ok) {
+              toast.success('Account created! Launching studio...');
+              setTimeout(() => { window.location.href = '/app'; }, 600);
+            } else {
+              throw new Error(data?.message || data?.error || 'Registration failed');
+            }
+          } catch (err) {
+            loadingToast.dismiss();
+            toast.error(err.message);
+            btn.disabled = false;
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

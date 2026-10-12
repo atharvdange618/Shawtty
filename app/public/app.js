@@ -267,6 +267,41 @@ const boot = async () => {
     keyStatus.classList.add('missing');
     modelChip.textContent = 'Models unavailable';
   }
+
+  // Check if a prompt was prefilled from landing page
+  const prefill = sessionStorage.getItem('shawtty_prefill_prompt');
+  if (prefill && input) {
+    input.value = prefill;
+    sessionStorage.removeItem('shawtty_prefill_prompt');
+    input.focus();
+  }
+
+  try {
+    const res = await fetch('/api/auth/me');
+    const data = await res.json();
+    const authPill = document.querySelector('#authPill');
+    const authEmail = document.querySelector('#authEmail');
+    const authActionBtn = document.querySelector('#authActionBtn');
+
+    if (authPill && authEmail && authActionBtn) {
+      if (data?.user?.email) {
+        authEmail.textContent = data.user.email;
+        authPill.classList.add('logged-in');
+        authActionBtn.textContent = 'Sign Out';
+        authActionBtn.onclick = async () => {
+          await fetch('/api/auth/sign-out', { method: 'POST' });
+          window.location.href = '/login';
+        };
+      } else {
+        window.location.href = '/login';
+      }
+    } else if (!data?.user?.email) {
+      window.location.href = '/login';
+    }
+  } catch (e) {
+    console.error('Auth state check failed:', e);
+    window.location.href = '/login';
+  }
 };
 
 outputVideo.addEventListener('loadedmetadata', () => {
@@ -285,6 +320,7 @@ form.addEventListener('submit', async (event) => {
   if (!prompt) return;
 
   if (prompt.length > promptMaxChars) {
+    if (window.toast) toast.warning(`Prompt must be under ${promptMaxChars} characters.`);
     runTitle.textContent = 'Prompt too long';
     setProgress(100);
     steps.innerHTML = `<li class="error">Prompt must be under ${promptMaxChars} characters.</li>`;
@@ -299,6 +335,7 @@ form.addEventListener('submit', async (event) => {
   runTitle.textContent = 'Queued';
   setProgress(0);
   steps.innerHTML = '<li class="active">Starting job</li>';
+  if (window.toast) toast.loading('Reel generation job queued...');
 
   try {
     const response = await fetch('/api/jobs', {
@@ -310,9 +347,15 @@ form.addEventListener('submit', async (event) => {
     const payload = await response.json();
 
     if (!response.ok) {
+      if (response.status === 401) {
+        if (window.toast) toast.error('Session required. Redirecting to sign in...');
+        setTimeout(() => { window.location.href = '/login'; }, 800);
+        return;
+      }
       throw new Error(payload.error || 'Could not start job.');
     }
 
+    if (window.toast) toast.dismiss();
     updateJob(payload.job);
     startPolling(payload.job.id);
   } catch (error) {
@@ -321,6 +364,7 @@ form.addEventListener('submit', async (event) => {
     runTitle.textContent = 'Failed';
     setProgress(100);
     steps.innerHTML = `<li class="error">${error.message}</li>`;
+    if (window.toast) toast.error(error.message);
   }
 });
 
