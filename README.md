@@ -125,8 +125,11 @@ Unit tests are co-located as `*.test.ts` next to the module they cover.
 | `npm run typecheck` | TypeScript check across `server/`, `remotion/`, `scripts/` | Free |
 | `npm run lint` | ESLint (TypeScript + browser JS) | Free |
 | `npm run test` | Vitest unit tests (`test:watch` to watch) | Free |
-| `npm run remotion:studio` | Open Remotion Studio | Free |
-| `npm run remotion:render` | Manual render to `reel/manual.mp4` | Free |
+| `npm run remotion:studio` | Open Remotion Studio with a placeholder visual (stage only) | Free |
+
+To re-render a past job by hand, point Remotion at its generated entry:
+`npx remotion render reel/<job-id>/entry.generated.tsx JobReel out.mp4`.
+The bare `remotion/index.tsx` has no visual and throws on purpose.
 
 ## Quality checks
 
