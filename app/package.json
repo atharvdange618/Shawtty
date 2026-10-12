@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "tsx server/index.ts",
     "start": "tsx server/index.ts",
-    "remotion:studio": "remotion studio remotion/index.tsx",
-    "remotion:render": "remotion render remotion/index.tsx GeneratedReel reel/manual.mp4",
+    "remotion:studio": "remotion studio remotion/studio.tsx",
     "render:smoke": "tsx scripts/render-smoke.ts",
     "check": "tsx scripts/check-env.ts",
     "typecheck": "tsc --noEmit",

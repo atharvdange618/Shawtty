@@ -4,7 +4,7 @@ import type { ReelInputProps } from '../types';
 
 const FPS = 30;
 
-const defaultProps: ReelInputProps = {
+export const defaultProps: ReelInputProps = {
   jobId: 'preview',
   title: 'Prompt to Reel',
   prompt: 'Create a short reel about AI agents.',
