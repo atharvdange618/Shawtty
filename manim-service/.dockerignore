@@ -1,0 +1,17 @@
+.git
+output/
+media/
+jobs/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!*.example
+*.mp4
+*.mov
+*.wav
+*.mp3
+*.png
+*.jpg

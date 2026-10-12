@@ -1,0 +1,35 @@
+services:
+  manim-service:
+    build:
+      context: ./manim-service
+      dockerfile: Dockerfile
+    container_name: shawtty-manim-service
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./app/.env
+    volumes:
+      - ./manim-service/output:/app/output
+      - ./manim-service/media:/app/media
+      - ./manim-service/jobs:/app/jobs
+      - ./manim-service/service:/app/service
+    restart: unless-stopped
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: shawtty-app
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./app/.env
+    environment:
+      - MANIM_SERVICE_URL=http://manim-service:8000
+    volumes:
+      - ./app/server:/app/server
+      - ./app/reel:/app/reel
+      - ./app/public/generated:/app/public/generated
+    depends_on:
+      - manim-service
+    restart: unless-stopped

@@ -6,42 +6,17 @@
   "scripts": {
     "dev": "tsx server/index.ts",
     "start": "tsx server/index.ts",
-    "remotion:studio": "remotion studio remotion/index.tsx",
-    "remotion:render": "remotion render remotion/index.tsx GeneratedReel reel/manual.mp4",
-    "render:smoke": "tsx scripts/render-smoke.ts",
     "check": "tsx scripts/check-env.ts",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@remotion/bundler": "4.0.534",
-    "@remotion/cli": "4.0.534",
-    "@remotion/renderer": "4.0.534",
-    "@remotion/shapes": "^4.0.534",
-    "@remotion/transitions": "4.0.534",
     "dotenv": "17.2.3",
-    "express": "5.1.0",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "remotion": "4.0.534"
+    "express": "5.1.0"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
     "@types/express": "^5.0.0",
     "@types/node": "^24.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "eslint": "^10.12.0",
-    "globals": "^17.13.0",
     "tsx": "^4.20.0",
-    "typescript": "^5.9.0",
-    "typescript-eslint": "^8.71.1",
-    "vitest": "^5.0.3"
-  },
-  "allowScripts": {
-    "esbuild@0.28.1": true
+    "typescript": "^5.9.0"
   }
 }
