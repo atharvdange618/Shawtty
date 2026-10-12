@@ -1,0 +1,1 @@
+split it into three commits: fix(server) for the exit handler, docs(env) for TRANSCRIBE_MODEL, chore(deps) for the shapes pin
