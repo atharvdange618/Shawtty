@@ -7,6 +7,24 @@
       "skillPath": "skills/git-workflow/SKILL.md",
       "computedHash": "f44e488fd739565c1613b8dcc84a0f0ed224905e380265c42feebcea97b8c489"
     },
+    "manim-composer": {
+      "source": "adithya-s-k/manim_skill",
+      "sourceType": "github",
+      "skillPath": "skills/manim-composer/SKILL.md",
+      "computedHash": "dff6610decf5a31f5e1796a15805d45e84522cccbd1dcd053751870133e6cad0"
+    },
+    "manimce-best-practices": {
+      "source": "adithya-s-k/manim_skill",
+      "sourceType": "github",
+      "skillPath": "skills/manimce-best-practices/SKILL.md",
+      "computedHash": "d8a9168f993c3152944059fed0ec258101f7ed00d24852a9eb73d8541a2b92ed"
+    },
+    "manimgl-best-practices": {
+      "source": "adithya-s-k/manim_skill",
+      "sourceType": "github",
+      "skillPath": "skills/manimgl-best-practices/SKILL.md",
+      "computedHash": "518cac69c2737652216b367db8f4776fc8a02b72e26b78369a0a6e430d86f841"
+    },
     "motion-graphics": {
       "source": "heygen-com/hyperframes",
       "sourceType": "github",

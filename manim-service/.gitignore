@@ -1,0 +1,50 @@
+# Manim service outputs and job workspaces
+output/
+media/
+jobs/
+
+# Environment files and credentials
+.env
+.env.*
+!.env.example
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Media files, video renders, audio clips, and frame dumps
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.flv
+*.m4v
+*.wav
+*.mp3
+*.aac
+*.ogg
+*.m4a
+*.ass
+*.srt
+*.vtt
+*.png
+*.jpg
+*.jpeg
+
+# OS metadata
+.DS_Store
+Thumbs.db

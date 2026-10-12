@@ -148,5 +148,72 @@ vite.config.ts.timestamp-*
 # Turbo Repo
 .turbo
 
-# Local agent state (opencode) — vendored skills live in skills/ + skills-lock.json
+# Local agent state (opencode) ï¿½ vendored skills live in skills/ + skills-lock.json
 .agents/
+
+
+
+# Scratch, test scripts, and temporary working directories
+scratch/
+**/scratch/
+downloads/
+our-output/
+
+# Video files (all renders, partial animations, raw recordings)
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.flv
+*.m4v
+
+# Audio files (TTS voiceovers, narration, music, SFX)
+*.wav
+*.mp3
+*.aac
+*.ogg
+*.m4a
+
+# Subtitles and captions
+*.ass
+*.srt
+*.vtt
+
+# Extracted frame dumps and temporary render images
+**/frames*/
+**/final_frames/
+**/check/
+*.png
+*.jpg
+*.jpeg
+# Exceptions: preserve tracked frontend production static assets
+!app/public/assets/**
+!app/public/*.png
+!app/public/*.svg
+!app/public/*.ico
+
+# Manim Service generated artifacts and runtime cache
+manim-service/output/
+manim-service/media/
+manim-service/jobs/
+
+# App generated video reel artifacts
+app/reel/*
+!app/reel/.gitkeep
+app/public/generated/*
+!app/public/generated/.gitkeep
+
+# Python bytecode & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
