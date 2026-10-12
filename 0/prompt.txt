@@ -1,0 +1,1 @@
+draft the message to pallab with the dead code list, the manim-service security issues and the aicredits gateway timeouts
