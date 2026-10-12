@@ -2,6 +2,7 @@ import json
 import logging
 import re
 from typing import Dict, Any, List, Optional
+import neatlogs
 from .llm_client import chat_completion
 
 logger = logging.getLogger("manim_service.generator")
@@ -240,6 +241,7 @@ Think as a master visual animator and design bespoke motion graphics from first 
     `verdict = VerdictBanner("THE GOLDEN RULE", "Clear single-sentence takeaway", color="#10B981").move_to(DOWN * 2.4)`
 """
 
+@neatlogs.span(kind="CHAIN", name="generate_reel_script")
 async def generate_reel_script(prompt: str) -> Dict[str, Any]:
     """
     Generate structured 4-act script and narration for a reel topic across any domain.
@@ -289,6 +291,7 @@ async def generate_reel_script(prompt: str) -> Dict[str, Any]:
     data["full_narration"] = full_narration
     return data
 
+@neatlogs.span(kind="CHAIN", name="generate_manim_code")
 async def generate_manim_code_for_script(
     prompt: str,
     script_data: Dict[str, Any],

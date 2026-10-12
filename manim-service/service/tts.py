@@ -8,6 +8,7 @@ import shutil
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
 import httpx
+import neatlogs
 
 from .config import (
     SARVAM_API_KEY,
@@ -169,6 +170,7 @@ def extract_acoustic_speech_segments(act_file: Path, narration: str) -> List[Dic
         logger.warning(f"Acoustic segment detection fallback: {e}")
         return [{"text": narration, "start": 0.0, "end": 6.0}]
 
+@neatlogs.span(kind="TOOL", tool_name="narration_tts")
 async def synthesize_synchronized_storyboard_audio(
     acts: List[Dict[str, Any]],
     job_dir: Path,

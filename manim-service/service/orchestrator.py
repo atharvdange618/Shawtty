@@ -8,6 +8,9 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 from uuid import uuid4
 
+import neatlogs
+from opentelemetry.trace import Status, StatusCode, get_current_span
+
 from .config import JOBS_DIR, OUTPUT_DIR
 from .manim_generator import generate_manim_reel
 from .manim_runner import render_manim_code
@@ -49,6 +52,7 @@ def save_job(job: Dict[str, Any]):
     job_file = job_dir / "job.json"
     job_file.write_text(json.dumps(job, indent=2), encoding="utf-8")
 
+@neatlogs.span(kind="WORKFLOW", name="reel_pipeline")
 async def run_reel_pipeline(job_id: str, prompt: str, quality: str = "h", max_retries: int = 3):
     job = jobs_store[job_id]
     job_dir = JOBS_DIR / job_id
@@ -172,6 +176,7 @@ async def run_reel_pipeline(job_id: str, prompt: str, quality: str = "h", max_re
             job["error"] = f"Render failed after {max_retries} attempts: {job['attempts'][-1].get('error_summary')}"
             job["step"] = "Failed"
             save_job(job)
+            get_current_span().set_status(Status(StatusCode.ERROR, job["error"]))
             return
 
         # Phase 4: Audio / Video Final Mix
@@ -220,3 +225,6 @@ async def run_reel_pipeline(job_id: str, prompt: str, quality: str = "h", max_re
         job["error"] = str(e)
         job["step"] = "Unexpected Failure"
         save_job(job)
+        span = get_current_span()
+        span.record_exception(e)
+        span.set_status(Status(StatusCode.ERROR, str(e)))

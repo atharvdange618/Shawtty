@@ -7,6 +7,8 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
 
+import neatlogs
+
 logger = logging.getLogger("manim_service.runner")
 
 COMPATIBILITY_PREAMBLE = """
@@ -492,6 +494,7 @@ def prepare_script_code(code: str) -> str:
 
     return clean_code
 
+@neatlogs.span(kind="TOOL", tool_name="manim_render")
 async def render_manim_code(
     code: str,
     job_dir: Path,

@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional
@@ -12,12 +13,25 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from .config import OUTPUT_DIR, JOBS_DIR
+
+import neatlogs
+
+# Reads NEATLOGS_API_KEY from the env loaded by config; without it spans stay local.
+neatlogs.init(workflow_name="shawtty-reel")
+
 from .orchestrator import jobs_store, get_job, save_job, run_reel_pipeline
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("manim_service")
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    await asyncio.to_thread(neatlogs.flush)
+    await asyncio.to_thread(neatlogs.shutdown)
+
 app = FastAPI(
+    lifespan=lifespan,
     title="Shawtty Manim Reel Generator",
     description="Autonomous Vertical 1080p Motion Graphics Engine using Manim Community with Self-Healing LLM Repair Loop",
     version="2.0.0",

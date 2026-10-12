@@ -2,6 +2,7 @@ import json
 import logging
 import re
 from typing import Dict, Any, List
+import neatlogs
 from .llm_client import chat_completion
 
 logger = logging.getLogger("manim_service.repair")
@@ -42,6 +43,7 @@ def add_line_numbers(code: str) -> str:
     lines = code.splitlines()
     return "\n".join(f"{i+1:4d}: {line}" for i, line in enumerate(lines))
 
+@neatlogs.span(kind="CHAIN", name="repair_manim_code")
 async def repair_manim_code(
     broken_code: str,
     error_summary: str,
