@@ -1,0 +1,1 @@
+commit current work and push it to main. because pallab has decided to drop remotion and we are using manim inside a dockerized service now. soo we can stop working on this
