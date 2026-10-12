@@ -15,48 +15,47 @@ export type AppConfig = {
   apiKey: string;
   baseUrl: string;
   fallbackBaseUrl: string;
+  llmApiKey: string;
+  llmBaseUrl: string;
   videoModel: string;
   speechModel: string;
   speechVoice: string;
   speechFormat: string;
   transcribeModel: string;
   promptMaxChars: number;
+  manimServiceUrl: string;
 };
 
 export const config: AppConfig = {
   port: Number(process.env.PORT || 3000),
+  // AICredits for speech/transcribe
   apiKey: process.env.AICREDITS_API_KEY || '',
   baseUrl: trimSlash(process.env.AICREDITS_BASE_URL || 'https://aicredits.in/v1'),
   fallbackBaseUrl: trimSlash(
     process.env.AICREDITS_FALLBACK_BASE_URL || 'https://api.aicredits.in/v1',
   ),
-  videoModel: process.env.VIDEO_MODEL || 'openai/gpt-4.1-mini',
-  // Speech defaults must be a compatible model + voice pair.
-  // openai/tts-1 voices: alloy, echo, fable, onyx, nova, shimmer.
-  // Sarvam bulbul via AICredits is currently broken: the gateway replaces every
-  // voice with 'meera' and Bulbul rejects it with a 400.
+  // LiteLLM for LLM generation
+  llmApiKey: process.env.LLM_API_KEY || '',
+  llmBaseUrl: trimSlash(process.env.LLM_BASE_URL || 'https://litellm.vision.aivar.app/v1'),
+  videoModel: process.env.VIDEO_MODEL || 'claude-opus-4.6',
   speechModel: process.env.SPEECH_MODEL || 'openai/tts-1',
   speechVoice: process.env.SPEECH_VOICE || 'alloy',
   speechFormat: process.env.SPEECH_FORMAT || 'mp3',
-  // Word-timestamp transcription of our own TTS audio (Whisper verbose_json).
-  // Falls back to estimated timings if the gateway rejects it — the reel
-  // still renders, just with syllable-estimated mouth timings.
   transcribeModel: process.env.TRANSCRIBE_MODEL || 'openai/whisper-1',
   promptMaxChars: Number(process.env.PROMPT_MAX_CHARS || 20000),
+  manimServiceUrl: trimSlash(process.env.MANIM_SERVICE_URL || 'http://localhost:8000'),
 };
 
 export type AppPaths = {
   publicDir: string;
   generatedAudioDir: string;
   reelDir: string;
-  remotionEntry: string;
 };
 
 export const paths: AppPaths = {
   publicDir: path.join(ROOT_DIR, 'public'),
   generatedAudioDir: path.join(ROOT_DIR, 'public', 'generated'),
   reelDir: path.join(ROOT_DIR, 'reel'),
-  remotionEntry: path.join(ROOT_DIR, 'remotion', 'index.tsx'),
 };
 
 // Single source of truth for docs/health checks (avoids hardcoded model

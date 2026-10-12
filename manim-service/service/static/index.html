@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shawtty · Autonomous Manim Reel Generator</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-badge">9:16</div>
+        <h1>Shawtty <span>Manim Reels</span></h1>
+      </div>
+      <div class="header-tags">
+        <span class="tag tag-engine">Manim Community</span>
+        <span class="tag tag-resolution">1080×1920 @60fps</span>
+        <span class="tag tag-repair">Self-Healing Loop</span>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- Creator Input Panel -->
+      <section class="prompt-card">
+        <div class="card-header">
+          <h2>Create Professional Motion Graphics Reel</h2>
+          <p>Autonomous LLM code generation + native Manim compilation with closed-loop traceback repair.</p>
+        </div>
+
+        <form id="reel-form">
+          <div class="input-group">
+            <textarea id="prompt-input" rows="3" placeholder="Enter topic or narrative (e.g. 'Explain the Bucket Rate Limiting algorithm: start with no rate limits, 1000 req/s server crash, then show bucket with tokens dropping and requests consumed')..."></textarea>
+          </div>
+
+          <div class="form-controls">
+            <div class="quick-examples">
+              <span class="examples-label">Examples:</span>
+              <button type="button" class="btn-chip" data-prompt="Bucket Rate Limit: what happens without rate limits (1000 req/s crash), then show a bucket with tokens dropping from top, requests consuming tokens from bottom, burst handling and empty bucket waiting.">🪣 Bucket Rate Limit</button>
+              <button type="button" class="btn-chip" data-prompt="2FA Time-Based One-Time Password (TOTP): phone vs server secret key sync, 30s rotating code countdown without needing internet.">🔑 TOTP 2FA</button>
+              <button type="button" class="btn-chip" data-prompt="Skeleton Screens vs Blank Spinners: perceived performance duel showing same time feels faster with layout previews.">⚡ Skeleton Screens</button>
+            </div>
+
+            <div class="submit-actions">
+              <select id="quality-select" class="select-quality">
+                <option value="h" selected>1080p (High Quality)</option>
+                <option value="l">480p (Fast Draft)</option>
+              </select>
+              <button type="submit" id="generate-btn" class="btn-primary">
+                <span class="btn-text">Generate Manim Reel</span>
+                <span class="spinner" style="display: none;"></span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- Live Job Monitor -->
+      <section id="monitor-section" class="monitor-card" style="display: none;">
+        <div class="monitor-header">
+          <div>
+            <h3 id="job-title-display">Generating Reel...</h3>
+            <span id="job-id-display" class="job-id-tag">#ID</span>
+          </div>
+          <div id="job-status-badge" class="status-badge">Queued</div>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-bar-bg">
+            <div id="progress-bar-fill" class="progress-bar-fill" style="width: 5%;"></div>
+          </div>
+          <div class="progress-meta">
+            <span id="step-description">Initializing pipeline...</span>
+            <span id="progress-percent">5%</span>
+          </div>
+        </div>
+
+        <div class="pipeline-stages">
+          <div class="stage-step" id="stage-script">1. Narration Script</div>
+          <div class="stage-step" id="stage-code">2. Manim Code Gen</div>
+          <div class="stage-step" id="stage-render">3. Manim Compilation</div>
+          <div class="stage-step" id="stage-repair">4. Traceback Auto-Repair</div>
+          <div class="stage-step" id="stage-mix">5. 1080p Final Output</div>
+        </div>
+
+        <div class="workspace-grid">
+          <!-- Left: Code & Attempts Inspector -->
+          <div class="code-panel">
+            <div class="panel-header">
+              <h4>Generated Manim Python Code</h4>
+              <div class="attempt-indicator" id="attempt-indicator">Attempt 1</div>
+            </div>
+            <pre class="code-viewer"><code id="code-content"># Generating Manim script...</code></pre>
+            
+            <div id="repair-box" class="repair-feedback-box" style="display: none;">
+              <h5>Traceback Diagnostics & Auto-Repair</h5>
+              <div id="repair-diagnosis" class="diagnosis-text"></div>
+              <pre id="repair-traceback" class="traceback-text"></pre>
+            </div>
+          </div>
+
+          <!-- Right: Video Player & Artifacts -->
+          <div class="preview-panel">
+            <div class="panel-header">
+              <h4>1080p Reel Preview</h4>
+              <a id="download-btn" href="#" download class="btn-download" style="display: none;">Download MP4</a>
+            </div>
+
+            <div class="video-wrapper">
+              <div id="video-placeholder" class="video-placeholder">
+                <div class="placeholder-icon">🎬</div>
+                <p>Compiling 1080x1920 animation...</p>
+                <span class="sub-placeholder">Video will appear here once rendered</span>
+              </div>
+              <video id="reel-video" controls playsinline loop style="display: none;"></video>
+            </div>
+
+            <div class="narration-card" id="narration-card" style="display: none;">
+              <h5>Voiceover Narration</h5>
+              <p id="narration-text"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- History of Recent Reels -->
+      <section class="history-section">
+        <h3>Recent Reels</h3>
+        <div id="jobs-list" class="jobs-grid">
+          <p class="empty-state">No reels created yet. Enter a prompt above to start!</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

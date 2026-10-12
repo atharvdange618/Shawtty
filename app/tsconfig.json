@@ -14,5 +14,5 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["server", "remotion", "scripts", "types.ts", "vitest.config.ts"]
+  "include": ["server", "scripts", "types.ts"]
 }

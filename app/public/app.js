@@ -42,7 +42,7 @@ const renderSteps = (job) => {
     'Searching the web for topic insights',
     'Planning Google-grade motion graphics',
     'Generating narration',
-    'Rendering Remotion reel',
+    'Rendering 1080p Manim reel',
     'Mixing music and sound effects',
     'Complete',
   ];

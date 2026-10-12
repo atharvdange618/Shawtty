@@ -1,0 +1,28 @@
+services:
+  manim-reel-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shawtty-manim-service
+    ports:
+      - "8000:8000"
+    environment:
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_BASE_URL=${LLM_BASE_URL:-https://litellm.vision.aivar.app/v1}
+      - SARVAM_API_KEY=${SARVAM_API_KEY}
+      - SARVAM_BASE_URL=${SARVAM_BASE_URL:-https://api.sarvam.ai}
+      - AICREDITS_API_KEY=${AICREDITS_API_KEY}
+      - AICREDITS_BASE_URL=${AICREDITS_BASE_URL:-https://aicredits.in/v1}
+      - AICREDITS_FALLBACK_BASE_URL=${AICREDITS_FALLBACK_BASE_URL:-https://api.aicredits.in/v1}
+      - VIDEO_MODEL=${VIDEO_MODEL:-claude-opus-4.6}
+      - SPEECH_MODEL=${SPEECH_MODEL:-openai/tts-1}
+      - SPEECH_VOICE=${SPEECH_VOICE:-alloy}
+      - SPEECH_FORMAT=${SPEECH_FORMAT:-mp3}
+    env_file:
+      - .env
+    volumes:
+      - ./output:/app/output
+      - ./media:/app/media
+      - ./jobs:/app/jobs
+      - ./service:/app/service
+    restart: unless-stopped

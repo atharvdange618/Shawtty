@@ -15,14 +15,26 @@ const checkBinary = async (name: string): Promise<string> => {
   }
 };
 
+const checkManimService = async (url: string): Promise<string> => {
+  try {
+    const res = await fetch(`${url}/api/health`);
+    if (res.ok) {
+      const data = await res.json();
+      return `MANIM_SERVICE (${url}): healthy (${JSON.stringify(data)})`;
+    }
+    return `MANIM_SERVICE (${url}): unhealthy (HTTP ${res.status})`;
+  } catch (err) {
+    return `MANIM_SERVICE (${url}): unreachable (${err instanceof Error ? err.message : String(err)})`;
+  }
+};
+
 const lines = [
   `AICREDITS_API_KEY: ${config.apiKey ? 'set' : 'missing'}`,
   `AICREDITS_BASE_URL: ${config.baseUrl}`,
   `VIDEO_MODEL: ${config.videoModel}`,
   `SPEECH_MODEL: ${config.speechModel}`,
   `SPEECH_VOICE: ${config.speechVoice}`,
-  await checkBinary('ffmpeg'),
-  await checkBinary('ffprobe'),
+  await checkManimService(config.manimServiceUrl),
 ];
 
 console.log(lines.join('\n'));
