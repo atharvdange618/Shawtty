@@ -1,0 +1,1 @@
+okayy the studio command works and i can scrub through the sample scenes. now if i want to generate a new reel i have to run the dev server right?
