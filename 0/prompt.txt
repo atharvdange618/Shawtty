@@ -1,0 +1,1 @@
+fix points 2, 3 and 4: make the uncaughtException handler log and exit, add TRANSCRIBE_MODEL to .env.example, and pin @remotion/shapes to exactly 4.0.534
