@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shawtty Studio — AI Motion Reel Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: '#0b0d12',
+              'ink-2': '#11141b',
+              'ink-3': '#181c25',
+              'ink-4': '#20252f',
+              line: '#232836',
+              'line-2': '#313848',
+              fg: '#eceef3',
+              'fg-2': '#a3a9b8',
+              'fg-3': '#6b7284',
+              mblue: '#58c4dd',
+              myellow: '#f2d45c',
+              mgreen: '#83c167',
+              mred: '#fc6255',
+            },
+            fontFamily: {
+              display: ['Newsreader', 'ui-serif', 'Georgia', 'serif'],
+              sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+            },
+            fontSize: {
+              '2xs': '11px',
+              '3xs': '10px',
+            },
+            borderRadius: {
+              sm: '6px',
+              md: '10px',
+              lg: '14px',
+              xl: '20px',
+              phone: '34px',
+            },
+            boxShadow: {
+              card: '0 1px 0 0 rgba(255, 255, 255, 0.04) inset, 0 8px 24px -12px rgba(0, 0, 0, 0.6)',
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/toast.js"></script>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="topbar-left">
+          <a href="/" class="brand" title="Shawtty Home">
+            <svg viewBox="0 0 18 28" style="height: 22px; width: 14px;">
+              <rect x="0.75" y="0.75" width="16.5" height="26.5" rx="3.5" fill="none" stroke="#eceef3" stroke-width="1.5" />
+              <path d="M7 10.5 L12.5 14 L7 17.5 Z" fill="#f2d45c" />
+            </svg>
+            <span class="brand-name">Shawtty</span>
+            <small class="brand-chip">Studio</small>
+          </a>
+          <a href="/" class="nav-link flex items-center gap-1">
+            <i class="ti ti-arrow-left"></i>
+            <span>Home</span>
+          </a>
+        </div>
+
+        <div class="topbar-right">
+          <div class="status-pill" id="keyStatus">Checking key</div>
+          <div class="auth-pill" id="authPill">
+            <span class="auth-indicator"></span>
+            <span id="authEmail">Loading...</span>
+            <button id="authActionBtn" class="auth-action-btn flex items-center gap-1">
+              <i class="ti ti-logout text-xs"></i>
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <section class="workspace">
+        <section class="prompt-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Prompt</p>
+              <h1>Generate a synced motion reel</h1>
+            </div>
+            <span class="model-chip" id="modelChip">Loading models</span>
+          </div>
+
+          <form id="promptForm" class="composer">
+            <textarea
+              id="promptInput"
+              name="prompt"
+              rows="8"
+              placeholder="Create a 20-second reel explaining how a voice AI agent books appointments for a clinic..."
+              required
+            ></textarea>
+
+            <div class="composer-actions">
+              <button type="button" class="ghost-button flex items-center gap-1.5" id="sampleButton">
+                <i class="ti ti-sparkles text-myellow"></i>
+                <span>Sample</span>
+              </button>
+              <button type="submit" class="send-button flex items-center gap-1.5" id="generateButton">
+                <span>Generate</span>
+                <i class="ti ti-send"></i>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <aside class="run-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">Run</p>
+              <h2 id="runTitle">No job yet</h2>
+            </div>
+            <div class="progress-ring" id="progressRing">0%</div>
+          </div>
+
+          <div class="progress-track">
+            <div id="progressBar"></div>
+          </div>
+
+          <ol class="steps" id="steps">
+            <li class="idle">Waiting for a prompt</li>
+          </ol>
+
+          <div class="plan-notes" id="planNotes" hidden>
+            <p class="plan-length" id="planLength"></p>
+            <div id="unsupportedBlock" hidden>
+              <p class="eyebrow">Not supported yet</p>
+              <ul id="unsupportedList"></ul>
+            </div>
+          </div>
+
+          <div class="trace" id="trace" hidden>
+            <p class="eyebrow">How the agent worked</p>
+            <ol class="trace-steps" id="traceSteps"></ol>
+            <div class="eval-chips" id="evalScores" hidden></div>
+            <div id="beatsWrap" hidden>
+              <p class="eyebrow">Voice-locked beats</p>
+              <table class="beats-table" id="beatsTable"></table>
+            </div>
+            <div id="probeWrap" hidden>
+              <p class="eyebrow">Render probe</p>
+              <a id="probeLink" href="#" target="_blank" rel="noreferrer">
+                <img id="probeImg" alt="Probe frame from the bespoke render" />
+              </a>
+            </div>
+          </div>
+
+          <div class="output" id="output" hidden>
+            <video id="outputVideo" controls playsinline></video>
+            <div class="output-actions">
+              <a id="videoLink" class="ghost-button" href="#" target="_blank" rel="noreferrer">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <path d="M7 10l5 5 5-5" />
+                  <path d="M12 15V3" />
+                </svg>
+                Video
+              </a>
+              <a id="audioLink" class="ghost-button" href="#" target="_blank" rel="noreferrer">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M9 18V5l12-2v13" />
+                  <circle cx="6" cy="18" r="3" />
+                  <circle cx="18" cy="16" r="3" />
+                </svg>
+                Audio
+              </a>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

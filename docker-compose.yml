@@ -28,8 +28,9 @@ services:
       - MANIM_SERVICE_URL=http://manim-service:8000
     volumes:
       - ./app/server:/app/server
+      - ./app/public:/app/public
       - ./app/reel:/app/reel
-      - ./app/public/generated:/app/public/generated
+      - ./app/data:/app/data
     depends_on:
       - manim-service
     restart: unless-stopped

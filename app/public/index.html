@@ -3,127 +3,1254 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Reel Agent</title>
+    <title>Shawtty — Autonomous 9:16 Vertical Motion-Graphics Reel Studio</title>
+    <meta name="description" content="Generate 3Blue1Brown-style vertical explainer reels with Python Manim, Sarvam AI voiceover sync, and self-healing LLM code generation." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=Geist:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: '#0b0d12',
+              'ink-2': '#11141b',
+              'ink-3': '#181c25',
+              'ink-4': '#20252f',
+              line: '#232836',
+              'line-2': '#313848',
+              fg: '#eceef3',
+              'fg-2': '#a3a9b8',
+              'fg-3': '#6b7284',
+              mblue: '#58c4dd',
+              myellow: '#f2d45c',
+              mgreen: '#83c167',
+              mred: '#fc6255',
+            },
+            fontFamily: {
+              display: ['Newsreader', 'ui-serif', 'Georgia', 'serif'],
+              sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+            },
+            fontSize: {
+              '2xs': '11px',
+              '3xs': '10px',
+            },
+            borderRadius: {
+              sm: '6px',
+              md: '10px',
+              lg: '14px',
+              xl: '20px',
+              phone: '34px',
+            },
+            boxShadow: {
+              card: '0 1px 0 0 rgba(255, 255, 255, 0.04) inset, 0 8px 24px -12px rgba(0, 0, 0, 0.6)',
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="/styles.css" />
+    <script src="/toast.js"></script>
   </head>
-  <body>
-    <main class="shell">
-      <header class="topbar">
-        <div class="brand">
-          <span class="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M13.8 3.2 5.6 13.4a1 1 0 0 0 .78 1.63h4.2l-1.14 5.13a.6.6 0 0 0 1.05.5l8.07-10.07a1 1 0 0 0-.78-1.63h-4.05l1.1-5.23a.6.6 0 0 0-1.03-.53Z" />
-            </svg>
-          </span>
-          <span>Reel Agent</span>
-          <small>MVP</small>
+  <body class="bg-ink font-sans text-fg min-h-screen">
+
+    <!-- Top Navigation -->
+    <header class="sticky top-0 z-40 border-b border-line bg-ink/95 backdrop-blur-md">
+      <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 md:px-8">
+        <a href="/" class="flex items-center gap-2.5 text-decoration-none">
+          <svg viewBox="0 0 18 28" class="h-6 w-4">
+            <rect x="0.75" y="0.75" width="16.5" height="26.5" rx="3.5" fill="none" stroke="#eceef3" stroke-width="1.5" />
+            <path d="M7 10.5 L12.5 14 L7 17.5 Z" fill="#f2d45c" />
+          </svg>
+          <span class="font-display text-2xl tracking-tight text-fg font-normal">Shawtty</span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-8 text-sm text-fg-2 font-sans">
+          <a href="#pipeline" class="hover:text-fg transition-colors">How it works</a>
+          <a href="#timeline" class="hover:text-fg transition-colors">Timeline</a>
+          <a href="#features" class="hover:text-fg transition-colors">Features</a>
+          <a href="#examples" class="hover:text-fg transition-colors">Examples</a>
+          <a href="#screens" class="hover:text-fg transition-colors">Studio</a>
+          <a href="#stack" class="hover:text-fg transition-colors">Stack</a>
+          <a href="#faq" class="hover:text-fg transition-colors">FAQ</a>
+        </nav>
+
+        <div class="flex items-center gap-3">
+          <a
+            href="https://github.com/atharvdange618/Shawtty"
+            target="_blank"
+            rel="noreferrer"
+            class="hidden sm:flex items-center gap-2 rounded-sm border border-line-2 px-3 py-1.5 text-sm text-fg-2 hover:border-fg-3 hover:text-fg transition-all"
+          >
+            <i class="ti ti-brand-github text-base"></i>
+            GitHub
+          </a>
+          
+          <div id="navAuthArea" class="flex items-center gap-2">
+            <a href="/login" class="rounded-sm border border-line-2 px-3 py-1.5 text-sm text-fg-2 hover:border-myellow hover:text-myellow transition-all">
+              Sign In
+            </a>
+            <a href="/app" class="rounded-sm bg-myellow px-3.5 py-1.5 text-sm font-medium text-ink hover:bg-fg transition-colors">
+              Open Studio →
+            </a>
+          </div>
         </div>
-        <div class="status-pill" id="keyStatus">Checking key</div>
-      </header>
+      </div>
+    </header>
 
-      <section class="workspace">
-        <section class="prompt-panel">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Prompt</p>
-              <h1>Generate a synced motion reel</h1>
-            </div>
-            <span class="model-chip" id="modelChip">Loading models</span>
-          </div>
+    <!-- SECTION: HERO -->
+    <section class="relative overflow-hidden border-b border-line">
+      <!-- Manim coordinate grid background -->
+      <div class="manim-grid-bg" aria-hidden="true"></div>
 
-          <form id="promptForm" class="composer">
+      <div class="relative mx-auto grid max-w-7xl grid-cols-12 gap-8 lg:gap-10 px-6 md:px-8 pb-24 pt-16 md:pt-20">
+        
+        <!-- Left: Headline, Pitch, Composer & Magic Link -->
+        <div class="col-span-12 lg:col-span-6 flex flex-col pt-2 lg:pt-6">
+          <span class="font-mono text-2xs md:text-xs tracking-widest text-mblue uppercase">
+            AUTONOMOUS REEL STUDIO — MANIM + LLM + TTS
+          </span>
+
+          <h1 class="mt-5 font-display text-5xl sm:text-6xl md:text-7xl font-light leading-[0.98] tracking-tight text-fg">
+            Generate a synced motion reel from <em class="text-myellow not-italic">one prompt</em>.
+          </h1>
+
+          <p class="mt-6 max-w-xl text-base md:text-lg font-light leading-relaxed text-fg-2">
+            Type “How Redis pub/sub works” or “Raft Consensus” — Shawtty researches, scripts, narrates, animates in
+            1080×1920, and delivers an MP4 with music and voice in sync.
+          </p>
+
+          <!-- The Composer Box -->
+          <div class="mt-9 rounded-lg border border-line-2 bg-ink-2 shadow-card focus-within:border-fg-3 transition-colors">
             <textarea
-              id="promptInput"
-              name="prompt"
-              rows="8"
+              id="heroPromptInput"
+              rows="3"
               placeholder="Create a 20-second reel explaining how a voice AI agent books appointments for a clinic..."
-              required
+              class="w-full resize-none bg-transparent px-5 pt-4 text-base leading-relaxed text-fg outline-none placeholder:text-fg-3 font-sans"
             ></textarea>
+            
+            <div class="flex flex-wrap items-center justify-between gap-3 border-t border-line px-3 py-3">
+              <div class="flex flex-wrap items-center gap-2">
+                <button
+                  id="heroSampleBtn"
+                  type="button"
+                  class="flex items-center gap-1.5 rounded-sm border border-line-2 px-2.5 py-1.5 text-xs text-fg-2 hover:border-fg-3 hover:text-fg transition-all"
+                >
+                  <i class="ti ti-sparkles text-myellow"></i>
+                  Sample: dental clinic voice agent
+                </button>
+                <span class="rounded-sm bg-ink-4 px-2 py-1.5 font-mono text-2xs text-fg-3">20s · 9:16</span>
+              </div>
 
-            <div class="composer-actions">
-              <button type="button" class="ghost-button" id="sampleButton">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v13A2.5 2.5 0 0 1 17.5 21h-11A2.5 2.5 0 0 1 4 18.5v-13Zm4 1.75h8M8 11h8M8 14.75h5" />
-                </svg>
-                Sample
+              <button
+                id="heroGenerateBtn"
+                type="button"
+                class="flex items-center gap-2 rounded-sm bg-myellow px-4 py-2 text-sm font-medium text-ink hover:bg-fg transition-colors"
+              >
+                <span>Generate Reel</span>
+                <i class="ti ti-arrow-right"></i>
               </button>
-              <button type="submit" class="send-button" id="generateButton">
-                <span>Generate</span>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M22 2 11 13" />
-                  <path d="m22 2-7 20-4-9-9-4 20-7Z" />
-                </svg>
+            </div>
+          </div>
+
+          <!-- Magic Link Email Auth Strip -->
+          <div class="mt-4 rounded-lg border border-line bg-ink/70 p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div class="flex items-center gap-2 text-fg-2">
+              <i class="ti ti-mail text-mblue"></i>
+              <span id="heroAuthSummary">Sign in with email for saved reels:</span>
+            </div>
+
+            <form id="heroFastMagicForm" class="flex items-center gap-2 w-full sm:w-auto">
+              <input
+                type="email"
+                id="heroFastEmail"
+                placeholder="you@domain.com"
+                required
+                class="bg-ink-2 border border-line-2 rounded-sm px-2.5 py-1 text-xs text-fg placeholder:text-fg-3 outline-none focus:border-mblue w-full sm:w-44 font-sans"
+              />
+              <button
+                type="submit"
+                id="heroFastSubmit"
+                class="flex items-center gap-1 whitespace-nowrap rounded-sm bg-ink-4 border border-line-2 hover:border-myellow hover:text-myellow px-2.5 py-1 text-xs text-fg-2 transition-all font-mono text-2xs"
+              >
+                <span>Get Link</span>
+                <i class="ti ti-bolt text-myellow"></i>
               </button>
-            </div>
-          </form>
-        </section>
+            </form>
+          </div>
+          <div id="heroFastFeedback" class="mt-2 text-xs font-mono" hidden></div>
 
-        <aside class="run-panel">
-          <div class="panel-heading compact">
-            <div>
-              <p class="eyebrow">Run</p>
-              <h2 id="runTitle">No job yet</h2>
-            </div>
-            <div class="progress-ring" id="progressRing">0%</div>
+          <div class="mt-6 flex items-center gap-5">
+            <a href="#screens" class="flex items-center gap-2 text-sm text-fg-2 hover:text-fg transition-colors">
+              <i class="ti ti-player-play text-mblue"></i>
+              Watch sample output
+            </a>
+            <span class="h-3 w-px bg-line-2"></span>
+            <span class="font-mono text-xs text-fg-3">live studio · shawtty.spacebuilder.in</span>
           </div>
 
-          <div class="progress-track">
-            <div id="progressBar"></div>
-          </div>
+          <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-2 font-mono text-2xs uppercase tracking-wider text-fg-3">
+            <li class="flex items-center gap-2"><span class="h-1 w-1 rounded-full bg-mblue"></span> 1080×1920 9:16 HD</li>
+            <li class="flex items-center gap-2"><span class="h-1 w-1 rounded-full bg-myellow"></span> Sarvam AI Voice</li>
+            <li class="flex items-center gap-2"><span class="h-1 w-1 rounded-full bg-mgreen"></span> Self-Healing Renderer</li>
+            <li class="flex items-center gap-2"><span class="h-1 w-1 rounded-full bg-mred"></span> Docker One-Command Deploy</li>
+          </ul>
+        </div>
 
-          <ol class="steps" id="steps">
-            <li class="idle">Waiting for a prompt</li>
-          </ol>
+        <!-- Right: 9:16 Phone Mockup + Interactive RunPanel -->
+        <div class="col-span-12 lg:col-span-6 flex flex-col sm:flex-row items-center sm:items-start justify-center lg:justify-end gap-5 pt-8 lg:pt-0">
+          
+          <!-- 9:16 Phone Container with Manim Scene SVG -->
+          <div class="relative aspect-[9/16] w-[260px] shrink-0 overflow-hidden rounded-phone border border-line-2 bg-ink shadow-card">
+            <svg id="reelSvg" viewBox="0 0 270 480" class="h-full w-full">
+              <defs>
+                <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                  <line x1="0" y1="0" x2="0" y2="6" stroke="#313848" stroke-width="1" />
+                </pattern>
+              </defs>
 
-          <div class="plan-notes" id="planNotes" hidden>
-            <p class="plan-length" id="planLength"></p>
-            <div id="unsupportedBlock" hidden>
-              <p class="eyebrow">Not supported yet</p>
-              <ul id="unsupportedList"></ul>
-            </div>
-          </div>
+              <!-- Act progress bars -->
+              <rect x="16" y="16" width="56" height="3" rx="1.5" fill="#eceef3" />
+              <rect x="77" y="16" width="56" height="3" rx="1.5" fill="#eceef3" />
+              <rect x="138" y="16" width="56" height="3" rx="1.5" fill="#313848" />
+              <rect x="199" y="16" width="56" height="3" rx="1.5" fill="#313848" />
 
-          <div class="trace" id="trace" hidden>
-            <p class="eyebrow">How the agent worked</p>
-            <ol class="trace-steps" id="traceSteps"></ol>
-            <div class="eval-chips" id="evalScores" hidden></div>
-            <div id="beatsWrap" hidden>
-              <p class="eyebrow">Voice-locked beats</p>
-              <table class="beats-table" id="beatsTable"></table>
-            </div>
-            <div id="probeWrap" hidden>
-              <p class="eyebrow">Render probe</p>
-              <a id="probeLink" href="#" target="_blank" rel="noreferrer">
-                <img id="probeImg" alt="Probe frame from the bespoke render" />
-              </a>
-            </div>
-          </div>
+              <text x="16" y="44" fill="#58c4dd" font-family="JetBrains Mono" font-size="8" letter-spacing="1.5">
+                ACT 2 · MECHANISM
+              </text>
+              <text x="16" y="78" fill="#eceef3" font-family="Newsreader" font-size="24">
+                One publish.
+              </text>
+              <text x="16" y="104" fill="#f2d45c" font-family="Newsreader" font-style="italic" font-size="24">
+                Every subscriber.
+              </text>
 
-          <div class="output" id="output" hidden>
-            <video id="outputVideo" controls playsinline></video>
-            <div class="output-actions">
-              <a id="videoLink" class="ghost-button" href="#" target="_blank" rel="noreferrer">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <path d="M7 10l5 5 5-5" />
-                  <path d="M12 15V3" />
+              <!-- Edges -->
+              <path d="M135 182 L135 222" stroke="#6b7284" stroke-width="1.5" fill="none" class="animate-draw" />
+              <path d="M135 278 L55 332" stroke="#6b7284" stroke-width="1.5" fill="none" class="animate-draw" style="animation-delay: 0.6s;" />
+              <path d="M135 278 L135 332" stroke="#6b7284" stroke-width="1.5" fill="none" class="animate-draw" style="animation-delay: 0.75s;" />
+              <path d="M135 278 L215 332" stroke="#6b7284" stroke-width="1.5" fill="none" class="animate-draw" style="animation-delay: 0.9s;" />
+
+              <!-- Publisher node -->
+              <g class="animate-fade">
+                <rect x="85" y="146" width="100" height="36" rx="6" fill="#11141b" stroke="#58c4dd" stroke-width="1.5" />
+                <text x="135" y="168" text-anchor="middle" fill="#58c4dd" font-family="JetBrains Mono" font-size="9">
+                  PUBLISH
+                </text>
+              </g>
+
+              <!-- Channel node -->
+              <g class="animate-fade" style="animation-delay: 0.4s;">
+                <circle cx="135" cy="250" r="28" fill="#11141b" stroke="#f2d45c" stroke-width="1.5" />
+                <text x="135" y="247" text-anchor="middle" fill="#f2d45c" font-family="JetBrains Mono" font-size="7">
+                  channel
+                </text>
+                <text x="135" y="258" text-anchor="middle" fill="#eceef3" font-family="JetBrains Mono" font-size="9">
+                  orders
+                </text>
+              </g>
+
+              <!-- Subscribers nodes -->
+              <g class="animate-fade" style="animation-delay: 1s;">
+                <rect x="23" y="332" width="64" height="30" rx="6" fill="#11141b" stroke="#83c167" stroke-width="1.5" />
+                <text x="55" y="351" text-anchor="middle" fill="#83c167" font-family="JetBrains Mono" font-size="8">worker</text>
+              </g>
+
+              <g class="animate-fade" style="animation-delay: 1.15s;">
+                <rect x="103" y="332" width="64" height="30" rx="6" fill="#11141b" stroke="#83c167" stroke-width="1.5" />
+                <text x="135" y="351" text-anchor="middle" fill="#83c167" font-family="JetBrains Mono" font-size="8">email</text>
+              </g>
+
+              <g class="animate-fade" style="animation-delay: 1.3s;">
+                <rect x="183" y="332" width="64" height="30" rx="6" fill="#11141b" stroke="#83c167" stroke-width="1.5" />
+                <text x="215" y="351" text-anchor="middle" fill="#83c167" font-family="JetBrains Mono" font-size="8">audit</text>
+              </g>
+
+              <!-- Packets animating along paths -->
+              <circle r="4" fill="#f2d45c">
+                <animateMotion dur="2.4s" repeatCount="indefinite" path="M135 182 L135 222" begin="1.4s" />
+              </circle>
+              <circle r="3.5" fill="#f2d45c">
+                <animateMotion dur="2.4s" repeatCount="indefinite" path="M135 278 L55 332" begin="2.6s" />
+              </circle>
+              <circle r="3.5" fill="#f2d45c">
+                <animateMotion dur="2.4s" repeatCount="indefinite" path="M135 278 L135 332" begin="2.6s" />
+              </circle>
+              <circle r="3.5" fill="#f2d45c">
+                <animateMotion dur="2.4s" repeatCount="indefinite" path="M135 278 L215 332" begin="2.6s" />
+              </circle>
+
+              <!-- Safe zone — bottom 20% stays text-free -->
+              <rect x="0" y="384" width="270" height="96" fill="url(#hatch)" opacity="0.5" />
+              <line x1="0" y1="384" x2="270" y2="384" stroke="#313848" stroke-dasharray="3 3" />
+              <text x="254" y="398" text-anchor="end" fill="#6b7284" font-family="JetBrains Mono" font-size="6.5">
+                SAFE ZONE · 20%
+              </text>
+            </svg>
+
+            <!-- Bottom audio bar overlay -->
+            <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between font-mono text-3xs text-fg-3">
+              <span class="flex items-center gap-1.5">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
                 </svg>
-                Video
+                shubh · bulbul:v4
+              </span>
+              <span>0:20</span>
+            </div>
+          </div>
+
+          <!-- RunPanel Mockup -->
+          <div class="w-full sm:w-[280px] flex flex-col rounded-lg border border-line bg-ink-2 shadow-card pt-0 lg:mt-10">
+            <div class="flex items-center justify-between border-b border-line px-4 py-3">
+              <span class="font-mono text-xs text-fg-3">job_7f3a2c</span>
+              <span class="rounded-sm bg-mgreen/10 px-2 py-0.5 font-mono text-2xs text-mgreen">complete</span>
+            </div>
+
+            <div class="border-b border-line px-4 py-3">
+              <p id="runPanelPrompt" class="line-clamp-2 text-xs leading-relaxed text-fg-2 font-sans">
+                How a voice AI agent helps a dental clinic answer missed calls, book appointments, and send reminders.
+              </p>
+            </div>
+
+            <ul class="flex flex-col gap-2.5 px-4 py-4 font-sans text-xs">
+              <li class="flex items-center gap-2.5"><span class="text-mgreen text-xs font-mono">✓</span> <span class="text-fg-2">Searching web</span></li>
+              <li class="flex items-center gap-2.5"><span class="text-mgreen text-xs font-mono">✓</span> <span class="text-fg-2">Planning motion graphics</span></li>
+              <li class="flex items-center gap-2.5"><span class="text-mgreen text-xs font-mono">✓</span> <span class="text-fg-2">Generating narration</span></li>
+              <li class="flex items-center gap-2.5"><span class="text-mgreen text-xs font-mono">✓</span> <span class="text-fg-2">Rendering 1080p Manim reel</span></li>
+              <li class="flex items-center gap-2.5"><span class="text-mgreen text-xs font-mono">✓</span> <span class="text-fg-2">Mixing music/SFX</span></li>
+            </ul>
+
+            <div class="border-t border-line px-4 py-4">
+              <div class="mb-2 font-mono text-3xs uppercase tracking-widest text-fg-3">Creativity scores</div>
+              <div class="flex flex-col gap-1.5 font-mono text-2xs">
+                <div class="flex items-center gap-2">
+                  <span class="w-20 text-fg-3">hook</span>
+                  <div class="h-1 flex-1 rounded-full bg-ink-4"><div class="h-1 rounded-full bg-mblue" style="width: 91%;"></div></div>
+                  <span class="w-6 text-right text-fg-2">9.1</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-20 text-fg-3">variety</span>
+                  <div class="h-1 flex-1 rounded-full bg-ink-4"><div class="h-1 rounded-full bg-mblue" style="width: 84%;"></div></div>
+                  <span class="w-6 text-right text-fg-2">8.4</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-20 text-fg-3">motion</span>
+                  <div class="h-1 flex-1 rounded-full bg-ink-4"><div class="h-1 rounded-full bg-mblue" style="width: 88%;"></div></div>
+                  <span class="w-6 text-right text-fg-2">8.8</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-20 text-fg-3">sound</span>
+                  <div class="h-1 flex-1 rounded-full bg-ink-4"><div class="h-1 rounded-full bg-mblue" style="width: 82%;"></div></div>
+                  <span class="w-6 text-right text-fg-2">8.2</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-20 text-fg-3">originality</span>
+                  <div class="h-1 flex-1 rounded-full bg-ink-4"><div class="h-1 rounded-full bg-mblue" style="width: 86%;"></div></div>
+                  <span class="w-6 text-right text-fg-2">8.6</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-2 border-t border-line p-3">
+              <a href="/app" class="flex flex-1 items-center justify-center gap-1.5 rounded-sm border border-line-2 py-2 text-xs text-fg-2 hover:border-fg-3 hover:text-fg transition-all text-decoration-none">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Video
               </a>
-              <a id="audioLink" class="ghost-button" href="#" target="_blank" rel="noreferrer">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M9 18V5l12-2v13" />
-                  <circle cx="6" cy="18" r="3" />
-                  <circle cx="18" cy="16" r="3" />
-                </svg>
-                Audio
+              <a href="/app" class="flex flex-1 items-center justify-center gap-1.5 rounded-sm border border-line-2 py-2 text-xs text-fg-2 hover:border-fg-3 hover:text-fg transition-all text-decoration-none">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13M6 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm12-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg> Audio
               </a>
             </div>
           </div>
-        </aside>
-      </section>
-    </main>
 
-    <script src="/app.js" type="module"></script>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 01: PIPELINE -->
+    <section id="pipeline" class="border-b border-line py-28">
+      <div class="mx-auto max-w-7xl px-6 md:px-8">
+        <div class="mb-14 grid grid-cols-12 gap-6 md:gap-10">
+          <div class="col-span-12 md:col-span-3 pt-3 font-mono text-xs tracking-widest text-fg-3">
+            <span class="text-fg-2">01</span> / PIPELINE
+          </div>
+          <div class="col-span-12 md:col-span-9">
+            <h2 class="max-w-3xl font-display text-4xl md:text-5xl font-light leading-tight tracking-tight text-fg">
+              Five passes from a sentence to an MP4.
+            </h2>
+            <p class="mt-4 max-w-2xl text-base font-light leading-relaxed text-fg-2">
+              Each stage writes an artifact you can inspect. Nothing is a black box — the trace log, beats table and probe frame are all in the Studio.
+            </p>
+          </div>
+        </div>
+
+        <ol class="relative grid grid-cols-1 md:grid-cols-5 gap-6 pt-2">
+          <div class="hidden md:block absolute left-0 right-0 top-[7px] h-px bg-line-2"></div>
+          
+          <li class="relative flex flex-col">
+            <span class="relative h-3.5 w-3.5 rounded-full border-4 border-ink bg-mblue"></span>
+            <span class="mt-6 font-mono text-2xs tracking-widest text-fg-3">STEP 1</span>
+            <h3 class="mt-2 text-lg font-normal leading-snug text-fg">Plan 4-Act Storyboard</h3>
+            <p class="mt-2 text-sm font-light leading-relaxed text-fg-2">LLM plans hook, mechanism, insight, takeaway.</p>
+            <span class="mt-5 self-start rounded-sm border border-line bg-ink-2 px-2 py-1 font-mono text-2xs text-fg-2">→ plan.json</span>
+          </li>
+
+          <li class="relative flex flex-col">
+            <span class="relative h-3.5 w-3.5 rounded-full border-4 border-ink bg-myellow"></span>
+            <span class="mt-6 font-mono text-2xs tracking-widest text-fg-3">STEP 2</span>
+            <h3 class="mt-2 text-lg font-normal leading-snug text-fg">Synthesize Voiceover</h3>
+            <p class="mt-2 text-sm font-light leading-relaxed text-fg-2">Sarvam AI generates per-act audio and measures its duration.</p>
+            <span class="mt-5 self-start rounded-sm border border-line bg-ink-2 px-2 py-1 font-mono text-2xs text-fg-2">→ act_1.mp3 · 4.82s</span>
+          </li>
+
+          <li class="relative flex flex-col">
+            <span class="relative h-3.5 w-3.5 rounded-full border-4 border-ink bg-mgreen"></span>
+            <span class="mt-6 font-mono text-2xs tracking-widest text-fg-3">STEP 3</span>
+            <h3 class="mt-2 text-lg font-normal leading-snug text-fg">Generate Time-Synced Code</h3>
+            <p class="mt-2 text-sm font-light leading-relaxed text-fg-2">LLM writes a self-contained ReelScene Manim class paced to the audio.</p>
+            <span class="mt-5 self-start rounded-sm border border-line bg-ink-2 px-2 py-1 font-mono text-2xs text-fg-2">→ reel_scene.py</span>
+          </li>
+
+          <li class="relative flex flex-col">
+            <span class="relative h-3.5 w-3.5 rounded-full border-4 border-ink bg-mred"></span>
+            <span class="mt-6 font-mono text-2xs tracking-widest text-fg-3">STEP 4</span>
+            <h3 class="mt-2 text-lg font-normal leading-snug text-fg">Render 1080p + Self-Heal</h3>
+            <p class="mt-2 text-sm font-light leading-relaxed text-fg-2">manim render -qh at 1080×1920. Auto-repairs on error.</p>
+            <span class="mt-5 self-start rounded-sm border border-line bg-ink-2 px-2 py-1 font-mono text-2xs text-fg-2">→ 1080×1920 · 60fps</span>
+          </li>
+
+          <li class="relative flex flex-col">
+            <span class="relative h-3.5 w-3.5 rounded-full border-4 border-ink bg-fg"></span>
+            <span class="mt-6 font-mono text-2xs tracking-widest text-fg-3">STEP 5</span>
+            <h3 class="mt-2 text-lg font-normal leading-snug text-fg">Mux & Deliver</h3>
+            <p class="mt-2 text-sm font-light leading-relaxed text-fg-2">FFmpeg mixes narration + SFX + video, then streams to your browser.</p>
+            <span class="mt-5 self-start rounded-sm border border-line bg-ink-2 px-2 py-1 font-mono text-2xs text-fg-2">→ output/job_id.mp4</span>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- SECTION 02: NARRATIVE PLANNER & TIMELINE -->
+    <section id="timeline" class="border-b border-line bg-ink-2 py-28">
+      <div class="mx-auto max-w-7xl px-6 md:px-8">
+        <div class="mb-14 grid grid-cols-12 gap-6 md:gap-10">
+          <div class="col-span-12 md:col-span-3 pt-3 font-mono text-xs tracking-widest text-fg-3">
+            <span class="text-fg-2">02</span> / NARRATIVE PLANNER
+          </div>
+          <div class="col-span-12 md:col-span-9">
+            <h2 class="max-w-3xl font-display text-4xl md:text-5xl font-light leading-tight tracking-tight text-fg">
+              Every topic gets the same <em class="text-myellow not-italic">four acts</em>, timed to the voice.
+            </h2>
+            <p class="mt-4 max-w-2xl text-base font-light leading-relaxed text-fg-2">
+              claude-opus-4.6 via LiteLLM breaks the prompt into a story arc. Sarvam measures each act to the millisecond, and every Manim run_time is aligned to those beats.
+            </p>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-line bg-ink p-6 md:p-8">
+          <div class="mb-4 flex flex-wrap items-baseline justify-between font-mono text-2xs text-fg-3 gap-2">
+            <span>plan length · requested 20s · actual 20.0s</span>
+            <span>voice: shubh_enhi_ads · bulbul:v4-flash</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div class="flex flex-col">
+              <div class="h-2 rounded-full bg-mblue"></div>
+              <span class="mt-4 font-mono text-2xs tracking-widest text-mblue">ACT 1 · 4.2s</span>
+              <span class="mt-1 text-base text-fg">Hook & Problem</span>
+              <span class="mt-2 font-display text-lg font-light italic leading-snug text-fg-2">“Your clinic misses 1 in 4 calls.”</span>
+            </div>
+
+            <div class="flex flex-col">
+              <div class="h-2 rounded-full bg-myellow"></div>
+              <span class="mt-4 font-mono text-2xs tracking-widest text-myellow">ACT 2 · 7.4s</span>
+              <span class="mt-1 text-base text-fg">Mechanism Deep Dive</span>
+              <span class="mt-2 font-display text-lg font-light italic leading-snug text-fg-2">“The agent answers, checks calendar, books.”</span>
+            </div>
+
+            <div class="flex flex-col">
+              <div class="h-2 rounded-full bg-mgreen"></div>
+              <span class="mt-4 font-mono text-2xs tracking-widest text-mgreen">ACT 3 · 4.6s</span>
+              <span class="mt-1 text-base text-fg">Aha! Insight</span>
+              <span class="mt-2 font-display text-lg font-light italic leading-snug text-fg-2">“Every missed call becomes a booked slot.”</span>
+            </div>
+
+            <div class="flex flex-col">
+              <div class="h-2 rounded-full bg-mred"></div>
+              <span class="mt-4 font-mono text-2xs tracking-widest text-mred">ACT 4 · 3.8s</span>
+              <span class="mt-1 text-base text-fg">Real-World Impact</span>
+              <span class="mt-2 font-display text-lg font-light italic leading-snug text-fg-2">“Reminders cut no-shows overnight.”</span>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-between border-t border-line pt-2 font-mono text-3xs text-fg-3">
+            <span>0s</span><span>2s</span><span>4s</span><span>6s</span><span>8s</span><span>10s</span><span>12s</span><span>14s</span><span>16s</span><span>18s</span><span>20s</span>
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-12 gap-6">
+          <div class="col-span-12 lg:col-span-4 flex flex-col justify-center">
+            <h3 class="text-lg text-fg">Voice-locked beats</h3>
+            <p class="mt-2 text-sm font-light leading-relaxed text-fg-2">
+              Word timestamps from the narration become animation cues. Entrances fire on <span class="font-mono text-xs text-fg">atWord</span>, SFX land on scene starts.
+            </p>
+          </div>
+          <div class="col-span-12 lg:col-span-8 overflow-hidden rounded-lg border border-line bg-ink">
+            <table class="w-full text-left font-mono text-xs">
+              <thead class="border-b border-line text-fg-3">
+                <tr>
+                  <th class="px-4 py-2.5 font-normal">start</th>
+                  <th class="px-4 py-2.5 font-normal">end</th>
+                  <th class="px-4 py-2.5 font-normal">word</th>
+                  <th class="px-4 py-2.5 font-normal">cue</th>
+                </tr>
+              </thead>
+              <tbody class="text-fg-2">
+                <tr class="border-b border-line"><td class="px-4 py-2.5 text-fg-3">0.00</td><td class="px-4 py-2.5 text-fg-3">0.42</td><td class="px-4 py-2.5 text-fg">Your</td><td class="px-4 py-2.5 text-mblue">Write(title)</td></tr>
+                <tr class="border-b border-line"><td class="px-4 py-2.5 text-fg-3">0.42</td><td class="px-4 py-2.5 text-fg-3">0.91</td><td class="px-4 py-2.5 text-fg">clinic</td><td class="px-4 py-2.5 text-mblue">FadeIn(icon:user)</td></tr>
+                <tr class="border-b border-line"><td class="px-4 py-2.5 text-fg-3">0.91</td><td class="px-4 py-2.5 text-fg-3">1.38</td><td class="px-4 py-2.5 text-fg">misses</td><td class="px-4 py-2.5 text-mblue">—</td></tr>
+                <tr class="border-b border-line"><td class="px-4 py-2.5 text-fg-3">1.38</td><td class="px-4 py-2.5 text-fg-3">2.06</td><td class="px-4 py-2.5 text-fg">one in four</td><td class="px-4 py-2.5 text-mblue">Transform(counter)</td></tr>
+                <tr><td class="px-4 py-2.5 text-fg-3">2.06</td><td class="px-4 py-2.5 text-fg-3">3.20</td><td class="px-4 py-2.5 text-fg">calls.</td><td class="px-4 py-2.5 text-mblue">Flash(phone) + sfx:pop</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 03: FEATURES -->
+    <section id="features" class="border-b border-line py-28">
+      <div class="mx-auto max-w-7xl px-6 md:px-8">
+        <div class="mb-14 grid grid-cols-12 gap-6 md:gap-10">
+          <div class="col-span-12 md:col-span-3 pt-3 font-mono text-xs tracking-widest text-fg-3">
+            <span class="text-fg-2">03</span> / UNDER THE HOOD
+          </div>
+          <div class="col-span-12 md:col-span-9">
+            <h2 class="max-w-3xl font-display text-4xl md:text-5xl font-light leading-tight tracking-tight text-fg">
+              A real render engine, not a template library.
+            </h2>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+          
+          <!-- Self-Healing Agent -->
+          <div class="col-span-1 md:col-span-4 flex flex-col rounded-lg border border-line bg-ink-2 p-7">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <div>
+                <span class="font-mono text-2xs tracking-widest text-fg-3">SELF-HEALING</span>
+                <h3 class="mt-2 text-xl font-normal tracking-tight text-fg">The repair agent reads the traceback, so you don't.</h3>
+                <p class="mt-2 text-sm font-light leading-relaxed text-fg-2">
+                  If a Manim script fails, the agent reads the Python traceback and stderr, patches the code and recompiles — up to 3 retries. Jobs rarely fail; when they do, you get a plain-language reason.
+                </p>
+              </div>
+              <div class="flex flex-col gap-2 rounded-md border border-line bg-ink p-4 font-mono text-2xs leading-relaxed">
+                <div class="text-fg-3">attempt 1/3</div>
+                <div class="text-mred">TypeError: Arrow.__init__() got an</div>
+                <div class="text-mred">unexpected keyword 'tip_len'</div>
+                <div class="my-1 h-px bg-line"></div>
+                <div class="text-fg-3">repair → reel_scene.py:42</div>
+                <div><span class="text-mred">- Arrow(a, b, tip_len=0.2)</span></div>
+                <div><span class="text-mgreen">+ Arrow(a, b, tip_length=0.2)</span></div>
+                <div class="my-1 h-px bg-line"></div>
+                <div class="text-mgreen">attempt 2/3 · rendered 1080×1920 ✓</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Safe Zone & Procedural Mix -->
+          <div class="col-span-1 md:col-span-2 flex flex-col rounded-lg border border-line bg-ink-2 p-7">
+            <div class="mb-6 flex justify-center">
+              <div class="relative h-36 w-20 overflow-hidden rounded-md border border-line-2 bg-ink">
+                <div class="absolute left-2 right-2 top-3 h-1 rounded-full bg-fg-3"></div>
+                <div class="absolute left-2 right-6 top-6 h-1 rounded-full bg-line-2"></div>
+                <div class="absolute left-1/2 top-12 -ml-4 h-8 w-8 rounded-full border border-myellow"></div>
+                <div class="absolute bottom-0 left-0 right-0 h-[20%] border-t border-dashed border-mred" style="background: repeating-linear-gradient(45deg, rgba(252,98,85,0.15) 0, rgba(252,98,85,0.15) 3px, transparent 3px, transparent 7px);"></div>
+              </div>
+            </div>
+            <span class="font-mono text-2xs tracking-widest text-fg-3">PROCEDURAL MIX</span>
+            <h3 class="mt-2 text-xl font-normal tracking-tight text-fg">Music ducks. Bottom 20% stays clear.</h3>
+            <p class="mt-2 text-sm font-light leading-relaxed text-fg-2">
+              FFmpeg sidechain compression ducks music under voice; SFX hit on scene starts. No text in the bottom 20% — safe for Instagram UI.
+            </p>
+          </div>
+
+          <!-- Sarvam AI Voiceover -->
+          <div class="col-span-1 md:col-span-3 flex flex-col rounded-lg border border-line bg-ink-2 p-7">
+            <div class="mb-6 flex h-16 items-center gap-[3px]">
+              <span class="w-1.5 rounded-full bg-mblue h-6"></span>
+              <span class="w-1.5 rounded-full bg-mblue h-12"></span>
+              <span class="w-1.5 rounded-full bg-mblue h-16"></span>
+              <span class="w-1.5 rounded-full bg-mblue h-10"></span>
+              <span class="w-1.5 rounded-full bg-myellow h-14"></span>
+              <span class="w-1.5 rounded-full bg-myellow h-20"></span>
+              <span class="w-1.5 rounded-full bg-myellow h-12"></span>
+              <span class="w-1.5 rounded-full bg-myellow h-8"></span>
+              <span class="w-1.5 rounded-full bg-mgreen h-15"></span>
+              <span class="w-1.5 rounded-full bg-mgreen h-18"></span>
+              <span class="w-1.5 rounded-full bg-mgreen h-10"></span>
+            </div>
+            <span class="font-mono text-2xs tracking-widest text-fg-3">SARVAM AI VOICEOVER</span>
+            <h3 class="mt-2 text-xl font-normal tracking-tight text-fg">Narration measured to the millisecond.</h3>
+            <p class="mt-2 text-sm font-light leading-relaxed text-fg-2">
+              bulbul:v4-flash with shubh_enhi_ads voice profile. Scene run_time auto-aligns to the audio beats with edge-tts fallback.
+            </p>
+          </div>
+
+          <!-- Pure Manim Community -->
+          <div class="col-span-1 md:col-span-3 flex flex-col rounded-lg border border-line bg-ink-2 p-7">
+            <div class="mb-6 flex h-16 items-end">
+              <svg viewBox="0 0 300 64" class="h-16 w-full">
+                <line x1="0" y1="60" x2="300" y2="60" stroke="#313848" />
+                <path d="M0 58 C 60 58, 90 10, 150 30 S 240 4, 300 6" stroke="#58c4dd" stroke-width="2" fill="none" />
+                <circle cx="150" cy="30" r="4" fill="#f2d45c" />
+                <rect x="232" y="18" width="22" height="22" fill="none" stroke="#83c167" stroke-width="1.5" transform="rotate(20 243 29)" />
+              </svg>
+            </div>
+            <span class="font-mono text-2xs tracking-widest text-fg-3">PURE MANIM COMMUNITY</span>
+            <h3 class="mt-2 text-xl font-normal tracking-tight text-fg">Vector type, real geometry, 60fps.</h3>
+            <p class="mt-2 text-sm font-light leading-relaxed text-fg-2">
+              Crisp typography, smooth geometric transforms, dynamic graphs and architecture diagrams — rendered natively at 1080×1920.
+            </p>
+          </div>
+
+          <!-- Icon library -->
+          <div class="col-span-1 md:col-span-2 flex flex-col rounded-lg border border-line bg-ink-2 p-7">
+            <div class="mb-6 grid grid-cols-5 gap-2">
+              <div class="flex aspect-square items-center justify-center rounded-sm border border-line text-fg-2">☁️</div>
+              <div class="flex aspect-square items-center justify-center rounded-sm border border-line text-fg-2">🖥️</div>
+              <div class="flex aspect-square items-center justify-center rounded-sm border border-line text-fg-2">🗄️</div>
+              <div class="flex aspect-square items-center justify-center rounded-sm border border-line text-fg-2">⚡</div>
+              <div class="flex aspect-square items-center justify-center rounded-sm border border-line text-fg-2">🔒</div>
+            </div>
+            <span class="font-mono text-2xs tracking-widest text-fg-3">SVG ICON LIBRARY</span>
+            <h3 class="mt-2 text-xl font-normal tracking-tight text-fg">Bundled technical icons.</h3>
+            <p class="mt-2 text-sm font-light leading-relaxed text-fg-2">Cloud, server, database, redis, cpu, lock, user, activity, networking, security.</p>
+          </div>
+
+          <!-- Dual Interface -->
+          <div class="col-span-1 md:col-span-2 flex flex-col rounded-lg border border-line bg-ink-2 p-7">
+            <div class="mb-6 text-mblue text-xl">🖥️</div>
+            <span class="font-mono text-2xs tracking-widest text-fg-3">DUAL INTERFACE</span>
+            <h3 class="mt-2 text-xl font-normal tracking-tight text-fg">Studio for output. Console for code.</h3>
+            <p class="mt-2 text-sm font-light leading-relaxed text-fg-2">Web Studio :3000 for prompts, job tracking and reel viewer. Manim Service :8000 for live code inspection.</p>
+          </div>
+
+          <!-- Containerized -->
+          <div class="col-span-1 md:col-span-2 flex flex-col rounded-lg border border-line bg-ink-2 p-7">
+            <div class="mb-6 text-mgreen text-xl">🐳</div>
+            <span class="font-mono text-2xs tracking-widest text-fg-3">CONTAINERIZED</span>
+            <h3 class="mt-2 text-xl font-normal tracking-tight text-fg">One command to run all of it.</h3>
+            <p class="mt-2 text-sm font-light leading-relaxed text-fg-2">docker compose up --build ships Python 3.14/3.11, Manim, FFmpeg, Cairo, Pango and Node.js.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 04: EXAMPLES -->
+    <section id="examples" class="border-b border-line py-28">
+      <div class="mx-auto max-w-7xl px-6 md:px-8">
+        <div class="mb-14 grid grid-cols-12 gap-6 md:gap-10">
+          <div class="col-span-12 md:col-span-3 pt-3 font-mono text-xs tracking-widest text-fg-3">
+            <span class="text-fg-2">04</span> / EXAMPLES
+          </div>
+          <div class="col-span-12 md:col-span-9">
+            <h2 class="max-w-3xl font-display text-4xl md:text-5xl font-light leading-tight tracking-tight text-fg">
+              Topics people actually explain.
+            </h2>
+            <p class="mt-4 max-w-2xl text-base font-light leading-relaxed text-fg-2">
+              Distributed systems, API auth flows, AI agents for business owners, clinic automation, dev-education Shorts. Pick one to load it into the composer.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <!-- Ex 1 -->
+          <div class="group flex flex-col rounded-xl border border-line bg-ink-2 p-5 hover:border-line-2 transition-all">
+            <span class="font-mono text-3xs tracking-widest text-fg-3">DISTRIBUTED SYSTEMS</span>
+            <div class="my-5 h-20 flex items-center justify-center">
+              <svg viewBox="0 0 120 70" class="h-16 w-full" stroke="#58c4dd" stroke-width="1.5" fill="none">
+                <rect x="45" y="4" width="30" height="16" rx="3" />
+                <line x1="60" y1="20" x2="60" y2="34" />
+                <circle cx="60" cy="42" r="8" />
+                <line x1="52" y1="50" x2="22" y2="60" /><line x1="60" y1="50" x2="60" y2="60" /><line x1="68" y1="50" x2="98" y2="60" />
+              </svg>
+            </div>
+            <p class="font-display text-lg font-light leading-snug text-fg">Redis pub/sub vs message queues with worker pools</p>
+            <button
+              type="button"
+              onclick="loadExample('Redis pub/sub vs message queues with worker pools')"
+              class="mt-auto pt-4 flex items-center justify-between rounded-sm border border-line-2 px-3 py-2 text-xs text-fg-2 hover:border-myellow hover:text-myellow transition-colors"
+            >
+              Use this prompt <span>↗</span>
+            </button>
+          </div>
+
+          <!-- Ex 2 -->
+          <div class="group flex flex-col rounded-xl border border-line bg-ink-2 p-5 hover:border-line-2 transition-all">
+            <span class="font-mono text-3xs tracking-widest text-fg-3">CONSENSUS</span>
+            <div class="my-5 h-20 flex items-center justify-center">
+              <svg viewBox="0 0 120 70" class="h-16 w-full" stroke="#f2d45c" stroke-width="1.5" fill="none">
+                <circle cx="60" cy="35" r="24" stroke-dasharray="3 4" stroke="#313848" />
+                <circle cx="60" cy="11" r="7" fill="#f2d45c" />
+                <circle cx="84" cy="35" r="5" />
+                <circle cx="60" cy="59" r="5" />
+                <circle cx="36" cy="35" r="5" />
+              </svg>
+            </div>
+            <p class="font-display text-lg font-light leading-snug text-fg">Understanding Raft Consensus in distributed databases</p>
+            <button
+              type="button"
+              onclick="loadExample('Understanding Raft Consensus in distributed databases')"
+              class="mt-auto pt-4 flex items-center justify-between rounded-sm border border-line-2 px-3 py-2 text-xs text-fg-2 hover:border-myellow hover:text-myellow transition-colors"
+            >
+              Use this prompt <span>↗</span>
+            </button>
+          </div>
+
+          <!-- Ex 3 -->
+          <div class="group flex flex-col rounded-xl border border-line bg-ink-2 p-5 hover:border-line-2 transition-all">
+            <span class="font-mono text-3xs tracking-widest text-fg-3">API AUTH</span>
+            <div class="my-5 h-20 flex items-center justify-center">
+              <svg viewBox="0 0 120 70" class="h-16 w-full" stroke="#83c167" stroke-width="1.5" fill="none">
+                <line x1="20" y1="4" x2="20" y2="66" stroke="#313848" />
+                <line x1="60" y1="4" x2="60" y2="66" stroke="#313848" />
+                <line x1="100" y1="4" x2="100" y2="66" stroke="#313848" />
+                <path d="M20 18 H58 M56 15 L60 18 L56 21" />
+                <path d="M60 36 H98 M96 33 L100 36 L96 39" />
+                <path d="M100 54 H22 M24 51 L20 54 L24 57" />
+              </svg>
+            </div>
+            <p class="font-display text-lg font-light leading-snug text-fg">OAuth 2.0 Authorization Code flow with PKCE</p>
+            <button
+              type="button"
+              onclick="loadExample('OAuth 2.0 Authorization Code flow with PKCE')"
+              class="mt-auto pt-4 flex items-center justify-between rounded-sm border border-line-2 px-3 py-2 text-xs text-fg-2 hover:border-myellow hover:text-myellow transition-colors"
+            >
+              Use this prompt <span>↗</span>
+            </button>
+          </div>
+
+          <!-- Ex 4 -->
+          <div class="group flex flex-col rounded-xl border border-line bg-ink-2 p-5 hover:border-line-2 transition-all">
+            <span class="font-mono text-3xs tracking-widest text-fg-3">NETWORKING</span>
+            <div class="my-5 h-20 flex items-center justify-center">
+              <svg viewBox="0 0 120 70" class="h-16 w-full" stroke="#fc6255" stroke-width="1.5" fill="none">
+                <rect x="6" y="22" width="22" height="26" rx="3" />
+                <rect x="92" y="22" width="22" height="26" rx="3" />
+                <path d="M30 30 Q 45 18, 60 30 T 90 30" />
+                <path d="M90 42 Q 75 54, 60 42 T 30 42" stroke="#eceef3" />
+              </svg>
+            </div>
+            <p class="font-display text-lg font-light leading-snug text-fg">How WebSockets work under the hood</p>
+            <button
+              type="button"
+              onclick="loadExample('How WebSockets work under the hood')"
+              class="mt-auto pt-4 flex items-center justify-between rounded-sm border border-line-2 px-3 py-2 text-xs text-fg-2 hover:border-myellow hover:text-myellow transition-colors"
+            >
+              Use this prompt <span>↗</span>
+            </button>
+          </div>
+
+          <!-- Ex 5 -->
+          <div class="group flex flex-col rounded-xl border border-line bg-ink-2 p-5 hover:border-line-2 transition-all">
+            <span class="font-mono text-3xs tracking-widest text-fg-3">AI FOR BUSINESS</span>
+            <div class="my-5 h-20 flex items-center justify-center">
+              <svg viewBox="0 0 120 70" class="h-16 w-full" stroke="#58c4dd" stroke-width="1.5" fill="none">
+                <rect x="44" y="6" width="32" height="46" rx="6" />
+                <path d="M28 24 a 14 14 0 0 1 0 14 M20 18 a 24 24 0 0 1 0 26" stroke="#6b7284" />
+                <rect x="16" y="58" width="88" height="8" rx="2" stroke="#83c167" />
+              </svg>
+            </div>
+            <p class="font-display text-lg font-light leading-snug text-fg">How a voice AI agent helps a dental clinic book appointments</p>
+            <button
+              type="button"
+              onclick="loadExample('A 20-second reel explaining how a voice AI agent helps a dental clinic answer missed calls and book appointments')"
+              class="mt-auto pt-4 flex items-center justify-between rounded-sm border border-line-2 px-3 py-2 text-xs text-fg-2 hover:border-myellow hover:text-myellow transition-colors"
+            >
+              Use this prompt <span>↗</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 05: SCREENS / THE STUDIO -->
+    <section id="screens" class="border-b border-line bg-ink-2 py-28">
+      <div class="mx-auto max-w-7xl px-6 md:px-8">
+        <div class="mb-14 grid grid-cols-12 gap-6 md:gap-10">
+          <div class="col-span-12 md:col-span-3 pt-3 font-mono text-xs tracking-widest text-fg-3">
+            <span class="text-fg-2">05</span> / THE STUDIO
+          </div>
+          <div class="col-span-12 md:col-span-9">
+            <h2 class="max-w-3xl font-display text-4xl md:text-5xl font-light leading-tight tracking-tight text-fg">
+              Watch every job, down to the frame.
+            </h2>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-6 lg:gap-10">
+          <!-- Tab selectors -->
+          <div class="col-span-12 lg:col-span-3 flex flex-col gap-2">
+            <button
+              type="button"
+              id="tabBtnStudio"
+              onclick="switchStudioTab('studio')"
+              class="rounded-md border border-line-2 bg-ink px-4 py-3 text-left transition-all"
+            >
+              <div class="text-sm text-fg font-medium">Web Studio</div>
+              <div class="font-mono text-2xs text-fg-3">localhost:3000</div>
+            </button>
+
+            <button
+              type="button"
+              id="tabBtnConsole"
+              onclick="switchStudioTab('console')"
+              class="rounded-md border border-transparent hover:bg-ink-3 px-4 py-3 text-left transition-all"
+            >
+              <div class="text-sm text-fg-2 font-medium">Manim Console</div>
+              <div class="font-mono text-2xs text-fg-3">localhost:8000</div>
+            </button>
+
+            <button
+              type="button"
+              id="tabBtnTrace"
+              onclick="switchStudioTab('trace')"
+              class="rounded-md border border-transparent hover:bg-ink-3 px-4 py-3 text-left transition-all"
+            >
+              <div class="text-sm text-fg-2 font-medium">Trace View</div>
+              <div class="font-mono text-2xs text-fg-3">Neatlogs · traces</div>
+            </button>
+
+            <p id="tabDescText" class="mt-6 px-2 text-sm font-light leading-relaxed text-fg-2">
+              Prompt composer, run panel with progress ring, steps, plan length, unsupported list and the reel player.
+            </p>
+          </div>
+
+          <!-- Browser Frame Mockup -->
+          <div class="col-span-12 lg:col-span-9">
+            <div class="overflow-hidden rounded-lg border border-line-2 bg-ink shadow-card">
+              <div class="flex items-center gap-3 border-b border-line bg-ink-2 px-4 py-2.5">
+                <div class="flex gap-1.5">
+                  <span class="h-2.5 w-2.5 rounded-full bg-line-2"></span>
+                  <span class="h-2.5 w-2.5 rounded-full bg-line-2"></span>
+                  <span class="h-2.5 w-2.5 rounded-full bg-line-2"></span>
+                </div>
+                <span id="tabUrlBar" class="rounded-sm bg-ink px-3 py-1 font-mono text-2xs text-fg-3">localhost:3000</span>
+              </div>
+
+              <!-- Content Tab: Studio -->
+              <div id="tabContentStudio" class="p-6 grid grid-cols-1 md:grid-cols-5 gap-6">
+                <div class="md:col-span-3 flex flex-col gap-4 border-r border-line pr-6">
+                  <div class="font-mono text-3xs uppercase tracking-widest text-fg-3">Prompt</div>
+                  <div class="rounded-md border border-line-2 bg-ink-2 p-4 text-sm leading-relaxed text-fg">
+                    How Redis pub/sub works vs message queues with worker pools
+                  </div>
+                  <div class="grid grid-cols-3 gap-3 text-xs">
+                    <div class="rounded-md border border-line p-3"><div class="text-fg-3">Duration</div><div class="mt-1 font-mono text-fg">20s</div></div>
+                    <div class="rounded-md border border-line p-3"><div class="text-fg-3">Voice</div><div class="mt-1 font-mono text-fg">shubh</div></div>
+                    <div class="rounded-md border border-line p-3"><div class="text-fg-3">Quality</div><div class="mt-1 font-mono text-fg">1080p · 60fps</div></div>
+                  </div>
+                  <a href="/app" class="mt-4 self-start rounded-sm bg-myellow px-4 py-2 text-sm font-medium text-ink text-decoration-none">Launch Full Studio →</a>
+                </div>
+                <div class="md:col-span-2 flex flex-col gap-4">
+                  <div class="flex items-center gap-4">
+                    <div class="h-10 w-10 rounded-full border-2 border-myellow flex items-center justify-center font-mono text-xs">70%</div>
+                    <div><div class="text-sm text-fg">Rendering 1080p Manim reel</div><div class="font-mono text-2xs text-fg-3">Phase 4 · compiler active</div></div>
+                  </div>
+                  <div class="flex-1 flex items-center justify-center rounded-md border border-line bg-ink-2 p-4">
+                    <div class="aspect-[9/16] h-36 rounded-md border border-line-2 bg-ink flex items-center justify-center text-xs text-fg-3">1080×1920</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Content Tab: Console -->
+              <div id="tabContentConsole" class="p-6 grid grid-cols-1 md:grid-cols-5 gap-6" hidden>
+                <div class="md:col-span-3 border-r border-line pr-6 font-mono text-xs leading-6">
+                  <div class="mb-2 font-mono text-3xs uppercase tracking-widest text-fg-3">reel_scene.py</div>
+                  <div class="text-mblue">class ReelScene(Scene):</div>
+                  <div class="text-fg-2">&nbsp;&nbsp;def construct(self):</div>
+                  <div class="text-fg-2">&nbsp;&nbsp;&nbsp;&nbsp;title = Text("Raft", font_size=96)</div>
+                  <div class="text-fg-2">&nbsp;&nbsp;&nbsp;&nbsp;self.play(Write(title), run_time=1.38)</div>
+                  <div class="text-fg-3">&nbsp;&nbsp;&nbsp;&nbsp;# act 2 — leader election, 7.4s</div>
+                  <div class="text-fg-2">&nbsp;&nbsp;&nbsp;&nbsp;nodes = VGroup(*[Circle(0.4) for _ in range(5)])</div>
+                  <div class="text-fg-2">&nbsp;&nbsp;&nbsp;&nbsp;self.play(LaggedStart(*map(FadeIn, nodes)))</div>
+                </div>
+                <div class="md:col-span-2 flex flex-col gap-3">
+                  <div class="font-mono text-3xs uppercase tracking-widest text-fg-3">Retry records</div>
+                  <div class="rounded-md border border-line p-2.5 font-mono text-2xs"><span class="text-fg-3">#1</span> <span class="text-mred">NameError: 'LaggedStrat'</span></div>
+                  <div class="rounded-md border border-line p-2.5 font-mono text-2xs"><span class="text-fg-3">#2</span> <span class="text-mgreen">patched · rendered 14.2s ✓</span></div>
+                </div>
+              </div>
+
+              <!-- Content Tab: Trace -->
+              <div id="tabContentTrace" class="p-6 grid grid-cols-1 md:grid-cols-5 gap-6" hidden>
+                <div class="md:col-span-3 border-r border-line pr-6 flex flex-col gap-4 font-mono text-xs">
+                  <div class="font-mono text-3xs uppercase tracking-widest text-fg-3">trace.json · Neatlogs</div>
+                  <div class="flex items-center gap-2"><span class="w-16 text-2xs text-fg-3">search</span><div class="h-2 flex-1 rounded-full bg-ink-3"><div class="h-2 rounded-full bg-fg-3" style="width: 10%;"></div></div></div>
+                  <div class="flex items-center gap-2"><span class="w-16 text-2xs text-fg-3">plan</span><div class="h-2 flex-1 rounded-full bg-ink-3"><div class="h-2 rounded-full bg-mblue" style="width: 25%;"></div></div></div>
+                  <div class="flex items-center gap-2"><span class="w-16 text-2xs text-fg-3">tts</span><div class="h-2 flex-1 rounded-full bg-ink-3"><div class="h-2 rounded-full bg-myellow" style="width: 40%;"></div></div></div>
+                  <div class="flex items-center gap-2"><span class="w-16 text-2xs text-fg-3">codegen</span><div class="h-2 flex-1 rounded-full bg-ink-3"><div class="h-2 rounded-full bg-mgreen" style="width: 60%;"></div></div></div>
+                  <div class="flex items-center gap-2"><span class="w-16 text-2xs text-fg-3">render</span><div class="h-2 flex-1 rounded-full bg-ink-3"><div class="h-2 rounded-full bg-mred" style="width: 90%;"></div></div></div>
+                </div>
+                <div class="md:col-span-2">
+                  <div class="font-mono text-3xs uppercase tracking-widest text-fg-3">eval.json</div>
+                  <div class="mt-2 flex flex-wrap gap-1.5 font-mono text-2xs">
+                    <span class="rounded-sm border border-mblue/30 px-2 py-0.5 text-mblue">hook 9.1</span>
+                    <span class="rounded-sm border border-mblue/30 px-2 py-0.5 text-mblue">variety 8.4</span>
+                    <span class="rounded-sm border border-mblue/30 px-2 py-0.5 text-mblue">motion 8.8</span>
+                    <span class="rounded-sm border border-mblue/30 px-2 py-0.5 text-mblue">sound 8.2</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 06: ARCHITECTURE & STACK -->
+    <section id="stack" class="border-b border-line py-28">
+      <div class="mx-auto max-w-7xl px-6 md:px-8">
+        <div class="mb-14 grid grid-cols-12 gap-6 md:gap-10">
+          <div class="col-span-12 md:col-span-3 pt-3 font-mono text-xs tracking-widest text-fg-3">
+            <span class="text-fg-2">06</span> / ARCHITECTURE
+          </div>
+          <div class="col-span-12 md:col-span-9">
+            <h2 class="max-w-3xl font-display text-4xl md:text-5xl font-light leading-tight tracking-tight text-fg">
+              Two services, one compose file.
+            </h2>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-line bg-ink-2 p-6 md:p-8">
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="rounded-md border border-line-2 bg-ink px-3 py-2 text-xs text-fg">User / Browser</div>
+            <span class="font-mono text-xs text-fg-3">→</span>
+            <div class="rounded-md border border-line-2 bg-ink px-3 py-2"><div class="text-xs text-fg">Web Studio</div><div class="font-mono text-3xs text-fg-3">:3000</div></div>
+            <span class="font-mono text-xs text-fg-3">→</span>
+            <div class="rounded-md border border-line-2 bg-ink px-3 py-2"><div class="text-xs text-fg">Express Gateway</div><div class="font-mono text-3xs text-fg-3">server/index.ts</div></div>
+            <span class="font-mono text-xs text-fg-3">→</span>
+            <div class="flex-1 min-w-[280px] rounded-lg border border-dashed border-line-2 p-3">
+              <div class="mb-2 font-mono text-3xs tracking-widest text-mblue">MANIM SERVICE · :8000</div>
+              <div class="flex flex-wrap items-center gap-2 text-2xs font-mono">
+                <span class="rounded bg-ink px-2 py-1">Orchestrator</span> →
+                <span class="rounded bg-ink px-2 py-1">LLM Planner</span> →
+                <span class="rounded bg-ink px-2 py-1">Sarvam TTS</span> →
+                <span class="rounded bg-ink px-2 py-1 border border-myellow/40">Repair Agent</span> →
+                <span class="rounded bg-ink px-2 py-1">FFmpeg Mux</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-12 gap-6">
+          <div class="md:col-span-7 overflow-hidden rounded-lg border border-line">
+            <table class="w-full text-left text-sm">
+              <tbody>
+                <tr class="border-b border-line"><td class="w-40 px-5 py-4 font-mono text-2xs uppercase tracking-widest text-fg-3">Frontend / Gateway</td><td class="px-5 py-4 font-light text-fg-2">Node.js 22 · Express 5.1.0 · TypeScript · Better Auth</td></tr>
+                <tr class="border-b border-line"><td class="w-40 px-5 py-4 font-mono text-2xs uppercase tracking-widest text-fg-3">Engine</td><td class="px-5 py-4 font-light text-fg-2">Python 3.14 · FastAPI · Manim Community · FFmpeg · Cairo · Pango</td></tr>
+                <tr class="border-b border-line"><td class="w-40 px-5 py-4 font-mono text-2xs uppercase tracking-widest text-fg-3">AI & Speech</td><td class="px-5 py-4 font-light text-fg-2">LiteLLM Gateway (claude-opus-4.6) · Sarvam AI bulbul:v4-flash</td></tr>
+                <tr><td class="w-40 px-5 py-4 font-mono text-2xs uppercase tracking-widest text-fg-3">Auth & Mail</td><td class="px-5 py-4 font-light text-fg-2">Better Auth · Resend API (no-reply@luqe.in) · SQLite (node:sqlite)</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="md:col-span-5 rounded-lg border border-line bg-ink-2 p-5 font-mono text-xs">
+            <div class="mb-3 font-mono text-3xs uppercase tracking-widest text-fg-3">API CONTRACT</div>
+            <div class="flex flex-col gap-2.5">
+              <div><span class="text-myellow">POST</span> <span class="text-fg">/api/jobs</span> <span class="text-fg-3 block text-2xs">{"prompt": "string"}</span></div>
+              <div><span class="text-mgreen">GET</span> <span class="text-fg">/api/jobs/:id</span> <span class="text-fg-3 block text-2xs">status, steps, videoUrl</span></div>
+              <div><span class="text-mblue">POST</span> <span class="text-fg">/api/auth/sign-in/magic-link</span> <span class="text-fg-3 block text-2xs">Better Auth passwordless sign in</span></div>
+              <div><span class="text-mgreen">GET</span> <span class="text-fg">/reel/:id/reel.mp4</span> <span class="text-fg-3 block text-2xs">1080x1920 MP4 download</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 07: FAQ -->
+    <section id="faq" class="border-b border-line py-28">
+      <div class="mx-auto grid max-w-7xl grid-cols-12 gap-6 md:gap-10 px-6 md:px-8">
+        <div class="col-span-12 md:col-span-3 pt-3 font-mono text-xs tracking-widest text-fg-3">
+          <span class="text-fg-2">07</span> / FAQ
+        </div>
+        <div class="col-span-12 md:col-span-9 border-t border-line">
+          
+          <div class="border-b border-line">
+            <button type="button" class="faq-btn flex w-full items-center justify-between py-6 text-left" onclick="toggleFaq(this)">
+              <span class="font-display text-2xl font-light text-fg">What output do I get?</span>
+              <span class="font-mono text-xl text-fg-3">+</span>
+            </button>
+            <div class="faq-ans pb-6 text-base font-light leading-relaxed text-fg-2" hidden>
+              A vertical 1080×1920 MP4 and an MP3, plus job.json and trace.json for every run.
+            </div>
+          </div>
+
+          <div class="border-b border-line">
+            <button type="button" class="faq-btn flex w-full items-center justify-between py-6 text-left" onclick="toggleFaq(this)">
+              <span class="font-display text-2xl font-light text-fg">How does magic link authentication work?</span>
+              <span class="font-mono text-xl text-fg-3">+</span>
+            </button>
+            <div class="faq-ans pb-6 text-base font-light leading-relaxed text-fg-2" hidden>
+              Powered by Better Auth and Resend. Enter your email, and you receive an instant secure sign-in token link from Shawtty &lt;no-reply@luqe.in&gt;. Clicking it establishes an authenticated session in your browser.
+            </div>
+          </div>
+
+          <div class="border-b border-line">
+            <button type="button" class="faq-btn flex w-full items-center justify-between py-6 text-left" onclick="toggleFaq(this)">
+              <span class="font-display text-2xl font-light text-fg">What if a render fails?</span>
+              <span class="font-mono text-xl text-fg-3">+</span>
+            </button>
+            <div class="faq-ans pb-6 text-base font-light leading-relaxed text-fg-2" hidden>
+              The self-healing repair agent patches the code automatically from the Python traceback, up to 3 attempts. If all retries fail, you receive a plain-language explanation.
+            </div>
+          </div>
+
+          <div class="border-b border-line">
+            <button type="button" class="faq-btn flex w-full items-center justify-between py-6 text-left" onclick="toggleFaq(this)">
+              <span class="font-display text-2xl font-light text-fg">Can I run it with Docker?</span>
+              <span class="font-mono text-xl text-fg-3">+</span>
+            </button>
+            <div class="faq-ans pb-6 text-base font-light leading-relaxed text-fg-2" hidden>
+              Yes — run <code class="font-mono text-xs text-mblue">docker compose up --build</code> to start the Express gateway on :3000 and the Manim engine on :8000.
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: FINAL CTA -->
+    <section class="py-32">
+      <div class="mx-auto flex max-w-4xl flex-col items-center px-6 md:px-8 text-center">
+        <h2 class="font-display text-5xl sm:text-6xl md:text-7xl font-light leading-none tracking-tight text-fg">
+          Text in. <em class="text-myellow not-italic">Technical reel out.</em>
+        </h2>
+        <p class="mt-6 text-base md:text-lg font-light text-fg-2">
+          Start creating reels in one command, then open localhost:3000.
+        </p>
+
+        <div class="mt-10 flex w-full max-w-lg items-center justify-between rounded-lg border border-line-2 bg-ink-2 py-2 pl-5 pr-2 font-mono text-sm">
+          <span>
+            <span class="text-fg-3">$ </span>
+            <span class="text-fg">docker compose up --build</span>
+          </span>
+          <button
+            type="button"
+            id="copyDockerBtn"
+            onclick="copyDockerCommand()"
+            class="flex items-center gap-1.5 rounded-sm bg-fg px-3 py-2 font-sans text-xs font-medium text-ink hover:bg-myellow transition-colors"
+          >
+            Copy
+          </button>
+        </div>
+
+        <div class="mt-8">
+          <a href="/app" class="rounded-sm bg-myellow px-6 py-3 text-sm font-medium text-ink hover:bg-fg transition-colors inline-block text-decoration-none">
+            Launch Shawtty Studio →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-line">
+      <div class="mx-auto flex max-w-7xl flex-col sm:flex-row items-start justify-between px-6 md:px-8 py-12 gap-8">
+        <div>
+          <a href="/" class="flex items-center gap-2.5 text-decoration-none">
+            <svg viewBox="0 0 18 28" class="h-6 w-4">
+              <rect x="0.75" y="0.75" width="16.5" height="26.5" rx="3.5" fill="none" stroke="#eceef3" stroke-width="1.5" />
+              <path d="M7 10.5 L12.5 14 L7 17.5 Z" fill="#f2d45c" />
+            </svg>
+            <span class="font-display text-2xl tracking-tight text-fg">Shawtty</span>
+          </a>
+          <p class="mt-3 max-w-xs text-sm font-light leading-relaxed text-fg-3">
+            Autonomous 9:16 vertical motion-graphics reel generator.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-6 text-sm text-fg-2 font-sans">
+          <a href="#pipeline" class="hover:text-fg transition-colors">How it works</a>
+          <a href="#features" class="hover:text-fg transition-colors">Features</a>
+          <a href="#examples" class="hover:text-fg transition-colors">Examples</a>
+          <a href="https://github.com/atharvdange618/Shawtty" target="_blank" rel="noreferrer" class="flex items-center gap-1.5 hover:text-fg transition-colors">
+            <i class="ti ti-brand-github text-base"></i>
+            <span>GitHub</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="mx-auto flex flex-col sm:flex-row max-w-7xl justify-between border-t border-line px-6 md:px-8 py-5 font-mono text-2xs tracking-wider text-fg-3 gap-2">
+        <span>MIT LICENSED · MANIM COMMUNITY · SARVAM AI · BETTER AUTH</span>
+        <span>github.com/atharvdange618/Shawtty</span>
+      </div>
+    </footer>
+
+    <!-- Client-side script for interactive features and Better Auth -->
+    <script>
+      // Load example prompt into composer
+      function loadExample(text) {
+        const input = document.getElementById('heroPromptInput');
+        if (input) {
+          input.value = text;
+          input.focus();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+
+      // FAQ accordion
+      function toggleFaq(btn) {
+        const ans = btn.nextElementSibling;
+        const plus = btn.querySelector('span:last-child');
+        if (ans) {
+          const isHidden = ans.hidden;
+          ans.hidden = !isHidden;
+          if (plus) plus.textContent = isHidden ? '−' : '+';
+        }
+      }
+
+      // Copy Docker command
+      function copyDockerCommand() {
+        navigator.clipboard?.writeText('docker compose up --build').catch(() => {});
+        const btn = document.getElementById('copyDockerBtn');
+        if (btn) {
+          btn.textContent = 'Copied ✓';
+          setTimeout(() => { btn.textContent = 'Copy'; }, 1600);
+        }
+      }
+
+      // Studio tabs switcher
+      function switchStudioTab(tab) {
+        const tabs = ['studio', 'console', 'trace'];
+        const urlMap = { studio: 'localhost:3000', console: 'localhost:8000', trace: 'Neatlogs · traces' };
+        const descMap = {
+          studio: 'Prompt composer, run panel with progress ring, steps, plan length, unsupported list and the reel player.',
+          console: 'Test prompts directly against the Python service, inspect generated Manim code, retry records and raw outputs.',
+          trace: 'trace.json timeline, eval.json chips, transcript beats and the render probe frame.'
+        };
+
+        tabs.forEach((t) => {
+          const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
+          const content = document.getElementById(`tabContent${t.charAt(0).toUpperCase() + t.slice(1)}`);
+          if (t === tab) {
+            btn?.classList.add('border-line-2', 'bg-ink');
+            btn?.classList.remove('border-transparent', 'hover:bg-ink-3');
+            btn?.querySelector('div:first-child')?.classList.remove('text-fg-2');
+            btn?.querySelector('div:first-child')?.classList.add('text-fg');
+            if (content) content.hidden = false;
+          } else {
+            btn?.classList.remove('border-line-2', 'bg-ink');
+            btn?.classList.add('border-transparent', 'hover:bg-ink-3');
+            btn?.querySelector('div:first-child')?.classList.remove('text-fg');
+            btn?.querySelector('div:first-child')?.classList.add('text-fg-2');
+            if (content) content.hidden = true;
+          }
+        });
+
+        const urlBar = document.getElementById('tabUrlBar');
+        if (urlBar) urlBar.textContent = urlMap[tab] || 'localhost:3000';
+        const desc = document.getElementById('tabDescText');
+        if (desc) desc.textContent = descMap[tab] || '';
+      }
+
+      // Setup Hero prompt generator & Sample button
+      document.addEventListener('DOMContentLoaded', async () => {
+        const sampleBtn = document.getElementById('heroSampleBtn');
+        const promptInput = document.getElementById('heroPromptInput');
+        const generateBtn = document.getElementById('heroGenerateBtn');
+
+        if (sampleBtn && promptInput) {
+          sampleBtn.addEventListener('click', () => {
+            promptInput.value = 'How a voice AI agent helps a dental clinic answer missed calls, book appointments, and send reminders.';
+            promptInput.focus();
+          });
+        }
+
+        if (generateBtn && promptInput) {
+          generateBtn.addEventListener('click', () => {
+            const val = promptInput.value.trim() || 'How a voice AI agent helps a dental clinic answer missed calls, book appointments, and send reminders.';
+            // Save prompt to sessionStorage so Studio can prefill it
+            sessionStorage.setItem('shawtty_prefill_prompt', val);
+            window.location.href = '/app';
+          });
+        }
+
+        // Check active session via Better Auth
+        async function checkSession() {
+          try {
+            const res = await fetch('/api/auth/me');
+            const data = await res.json();
+            const navAuth = document.getElementById('navAuthArea');
+            const heroSummary = document.getElementById('heroAuthSummary');
+            const fastForm = document.getElementById('heroFastMagicForm');
+
+            if (data?.user?.email) {
+              const email = data.user.email;
+              if (navAuth) {
+                navAuth.innerHTML = `
+                  <span class="font-mono text-2xs text-fg-3 truncate max-w-[140px]">${email}</span>
+                  <a href="/app" class="rounded-sm bg-myellow px-3 py-1.5 text-xs font-medium text-ink hover:bg-fg transition-colors">Studio →</a>
+                  <button id="navSignOut" class="rounded-sm border border-line-2 px-2.5 py-1.5 text-xs text-fg-3 hover:text-fg">Sign Out</button>
+                `;
+                document.getElementById('navSignOut')?.addEventListener('click', async () => {
+                  await fetch('/api/auth/sign-out', { method: 'POST' });
+                  window.location.reload();
+                });
+              }
+              if (heroSummary) heroSummary.innerHTML = `Signed in as <strong class="text-fg">${email}</strong>`;
+              if (fastForm) fastForm.hidden = true;
+            }
+          } catch (e) {
+            console.warn('Session check failed:', e);
+          }
+        }
+
+        await checkSession();
+
+        // Helper for Magic Link sign in
+        async function sendMagicLink(email, feedbackEl, btnEl) {
+          if (!email) return;
+          if (btnEl) btnEl.disabled = true;
+          const loadingToast = toast.loading('Sending magic link...');
+
+          try {
+            const callbackURL = `${window.location.origin}/app`;
+            const res = await fetch('/api/auth/sign-in/magic-link', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, callbackURL }),
+            });
+
+            const data = await res.json();
+            loadingToast.dismiss();
+
+            if (res.ok) {
+              toast.success(`Magic link sent to ${email}! Check your inbox.`);
+            } else {
+              throw new Error(data?.message || data?.error || 'Failed to send magic link');
+            }
+          } catch (err) {
+            loadingToast.dismiss();
+            toast.error(err.message);
+          } finally {
+            if (btnEl) btnEl.disabled = false;
+          }
+        }
+
+        // Handle hero strip fast form submit
+        const fastForm = document.getElementById('heroFastMagicForm');
+        fastForm?.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const email = document.getElementById('heroFastEmail')?.value.trim();
+          sendMagicLink(email, document.getElementById('heroFastFeedback'), document.getElementById('heroFastSubmit'));
+        });
+      });
+    </script>
   </body>
 </html>
