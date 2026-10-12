@@ -1,54 +1,99 @@
-# AI Reel Agent MVP
+# Shawtty Web Gateway (`app/`)
 
-A small local agent that turns a prompt into a narrated motion-graphics reel.
+The Node.js + Express gateway and interactive frontend for Shawtty.
 
-The app gives you a prompt panel in the browser, calls AICredits for a video plan and speech audio, renders a Remotion composition, and saves the final MP4 in `reel/<job-id>/reel.mp4`.
+It provides the browser interface (`http://localhost:3000`), handles job queuing, communicates with the Python `manim-service` backend, and streams the finished 1080p MP4 reel directly to the user.
 
-## Setup
+---
 
-1. Install packages:
+## Architecture Role
+
+```text
+[ Browser UI ]
+      │  (POST /api/jobs { prompt })
+      ▼
+[ Express Server (server/index.ts) ]
+      │  (Job dispatch & tracking)
+      ▼
+[ Job Proxy (server/jobs.ts) ] ───► [ Python manim-service (Port 8000) ]
+      │                                       │
+      │◄── (Poll status & download MP4) ──────┘
+      ▼
+[ Local Reel Cache (reel/<job-id>/reel.mp4) ]
+      │
+      ▼
+[ Video Player in Browser ]
+```
+
+---
+
+## Getting Started
+
+### 1. Install Dependencies
 
 ```bash
 npm install
 ```
 
-2. Create `.env` from `.env.example` and put your AICredits key in `AICREDITS_API_KEY`.
+### 2. Configure Environment
 
-3. Start the app:
+Copy `.env.example` to `.env`:
 
 ```bash
-npm run dev
+cp .env.example .env
 ```
 
-4. Open `http://localhost:3000`.
+Set the URL of the Manim microservice:
 
-Large prompts are allowed up to `PROMPT_MAX_CHARS`, which defaults to `20000`. Add `PROMPT_MAX_CHARS=30000` to `.env` if you need an even larger stress-test prompt.
+```env
+PORT=3000
+MANIM_SERVICE_URL=http://localhost:8000
+PROMPT_MAX_CHARS=20000
+```
 
-## Requirements
+*(When running inside Docker Compose, `MANIM_SERVICE_URL` is automatically configured to `http://manim-service:8000`)*.
 
-- Node.js 18 or newer.
-- FFmpeg and FFprobe on your PATH.
-- Remotion dependencies installed with `npm install`.
-- A working AICredits key with access to:
-  - `openai/gpt-4.1-mini` for the motion plan.
-  - `openai/tts-1` for speech (`SPEECH_VOICE`: alloy, echo, fable, onyx, nova, shimmer).
-    Sarvam `bulbul` models fail through AICredits right now: the gateway swaps
-    every voice for `meera`, which Bulbul rejects with HTTP 400.
+### 3. Verify Health
 
-## Output
+Check if your configuration and `manim-service` connection are healthy:
 
-Each job gets its own folder:
+```bash
+npm run check
+```
+
+### 4. Start the Server
+
+```bash
+# Development mode with hot-reloading (via tsx)
+npm run dev
+
+# Or production start
+npm start
+```
+
+Open `http://localhost:3000` in your web browser.
+
+---
+
+## Available Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start development server on port 3000 with auto-reload |
+| `npm start` | Start server via `tsx server/index.ts` |
+| `npm run check` | Run environment check and test connection to `manim-service` |
+| `npm run typecheck` | Run `tsc --noEmit` to verify TypeScript types |
+
+---
+
+## Output Files
+
+Jobs are saved locally in the `reel/` directory:
 
 ```text
-reel/<job-id>/
-  input.json
-  plan.json
-  job.json
-  reel.mp4
+reel/
+  <job-id>/
+    job.json        # Public job state (progress, steps, timestamp)
+    trace.json      # Pipeline execution trace log
+    reel.mp4        # Rendered 1080p vertical video reel
 ```
-
-Generated speech audio is stored in `public/generated/<job-id>.mp3` so Remotion can load it during render.
-
-## Notes
-
-The MVP asks the AI model for structured JSON instead of executing generated code. Remotion renders that JSON through a local, trusted component. This keeps the first version stable and avoids running unreviewed model code.
