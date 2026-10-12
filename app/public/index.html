@@ -1026,39 +1026,6 @@
       </div>
     </section>
 
-    <!-- SECTION: FINAL CTA -->
-    <section class="py-32">
-      <div class="mx-auto flex max-w-4xl flex-col items-center px-6 md:px-8 text-center">
-        <h2 class="font-display text-5xl sm:text-6xl md:text-7xl font-light leading-none tracking-tight text-fg">
-          Text in. <em class="text-myellow not-italic">Technical reel out.</em>
-        </h2>
-        <p class="mt-6 text-base md:text-lg font-light text-fg-2">
-          Start creating reels in one command, then open localhost:3000.
-        </p>
-
-        <div class="mt-10 flex w-full max-w-lg items-center justify-between rounded-lg border border-line-2 bg-ink-2 py-2 pl-5 pr-2 font-mono text-sm">
-          <span>
-            <span class="text-fg-3">$ </span>
-            <span class="text-fg">docker compose up --build</span>
-          </span>
-          <button
-            type="button"
-            id="copyDockerBtn"
-            onclick="copyDockerCommand()"
-            class="flex items-center gap-1.5 rounded-sm bg-fg px-3 py-2 font-sans text-xs font-medium text-ink hover:bg-myellow transition-colors"
-          >
-            Copy
-          </button>
-        </div>
-
-        <div class="mt-8">
-          <a href="/app" class="rounded-sm bg-myellow px-6 py-3 text-sm font-medium text-ink hover:bg-fg transition-colors inline-block text-decoration-none">
-            Launch Shawtty Studio →
-          </a>
-        </div>
-      </div>
-    </section>
-
     <!-- FOOTER -->
     <footer class="border-t border-line">
       <div class="mx-auto flex max-w-7xl flex-col sm:flex-row items-start justify-between px-6 md:px-8 py-12 gap-8">
@@ -1112,16 +1079,6 @@
           const isHidden = ans.hidden;
           ans.hidden = !isHidden;
           if (plus) plus.textContent = isHidden ? '−' : '+';
-        }
-      }
-
-      // Copy Docker command
-      function copyDockerCommand() {
-        navigator.clipboard?.writeText('docker compose up --build').catch(() => {});
-        const btn = document.getElementById('copyDockerBtn');
-        if (btn) {
-          btn.textContent = 'Copied ✓';
-          setTimeout(() => { btn.textContent = 'Copy'; }, 1600);
         }
       }
 
