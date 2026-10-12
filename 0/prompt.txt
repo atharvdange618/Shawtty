@@ -1,0 +1,20 @@
+<pasted_content id="47e6">
+AI Reel Agent running at http://localhost:3000
+Workspace: C:\Users\athar\Documents\Github\Shawtty\app
+[research] Researching query: "Create a  visually soothing animated reel explaining where homeopathic mother tinctures come from. Use botanical vector" for prompt: "Create a 20-second visually soothing animated reel explaining where homeopathic mother tinctures come from. Use botanical vector illustrations that bloom and transform into medicine dropper bottles. Voiceover should explain the principle of "like cures like" in under 20 seconds. Use soft pastel tones, clean typography, and a calming, educational vibe. Light pastel background (cream, sage, blush, lavender), not dark mode. Slow, gentle narration with a soft opening line, no shock hook. Leaves unfold petal by petal, then cross-dissolve into an amber dropper bottle."
+[transcribe] transcript has text but no word timestamps (granularity unsupported), ignoring.
+[job 20261012062429-b1636a2a] transcript has text but no word timestamps (granularity unsupported) — using estimated word timings.
+[job 20261012062429-b1636a2a] transcript: 43 words, 4 beats (estimated).
+[job 20261012062429-b1636a2a] review: Scene 1 is a personal beat ("Homeopathic mother tinctures begin as fr…") — chart "timeline_path" demoted to "kinetic_typography".
+[job 20261012062429-b1636a2a] review: Scene 2 repeated "kinetic_typography" — rotated to "bento_grid".
+[job 20261012062429-b1636a2a] review: Scene 2 used data visual "bento_grid" with no usable data — demoted to "quote_card".
+[job 20261012062429-b1636a2a] review: Scene 3: 2 fabricated bar(s) dropped.
+[job 20261012062429-b1636a2a] review: Scene 3 data visual "bento_grid" had filler copy — rebuilt payload from the voiceover.
+[job 20261012062429-b1636a2a] stripped non-rendering code (CSS animation/transition declaration) instead of regenerating.
+[job 20261012062429-b1636a2a] codegen typecheck failed — one repair round.
+[job 20261012062429-b1636a2a] codegen repair failed — no fallback, job will fail honestly.
+[job 20261012062429-b1636a2a] failed: Error: Bespoke visual codegen failed (typecheck failed twice (reel/20261012062429-b1636a2a/visual.generated.tsx(586,101): error TS18046: )). Resubmit to retry — the voice, transcript, and plan are intact.
+    at runJob (C:\Users\athar\Documents\Github\Shawtty\app\server\jobs.ts:510:13)
+</pasted_content id="47e6">
+
+. it errored out
