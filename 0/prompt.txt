@@ -1,0 +1,3 @@
+<task-notification>
+<summary>Background security review found 2 issues: Code Injection / Unsandboxed Execution of LLM-Generated Code in manim-service/service/manim_runner.py; Stored Cross-Site Scripting (XSS) in manim-service/service/static/app.js</summary>
+</task-notification>
