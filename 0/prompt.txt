@@ -1,0 +1,1 @@
+delete the stale remotion:render script and fix remotion:studio so it doesn't throw, update the README too
