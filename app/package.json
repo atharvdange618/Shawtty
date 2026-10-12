@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx server/index.ts",
+    "dev": "tsx watch --clear-screen=false server/index.ts",
     "start": "tsx server/index.ts",
     "check": "tsx scripts/check-env.ts",
     "typecheck": "tsc --noEmit"
