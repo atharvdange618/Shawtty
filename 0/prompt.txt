@@ -1,0 +1,45 @@
+Review this change for security vulnerabilities.
+
+Changed files (you may Read these and any other file in the repo):
+  - app/package-lock.json
+  - app/package.json
+  - app/server/index.ts
+
+Unified diff (only + lines are new):
+
+=== DIFF: app/package-lock.json ===
+@@ -11,7 +11,7 @@
+         "@remotion/bundler": "4.0.534",
+         "@remotion/cli": "4.0.534",
+         "@remotion/renderer": "4.0.534",
+-        "@remotion/shapes": "^4.0.534",
++        "@remotion/shapes": "4.0.534",
+         "@remotion/transitions": "4.0.534",
+         "dotenv": "17.2.3",
+         "express": "5.1.0",
+
+
+=== DIFF: app/package.json ===
+@@ -20,7 +20,7 @@
+     "@remotion/bundler": "4.0.534",
+     "@remotion/cli": "4.0.534",
+     "@remotion/renderer": "4.0.534",
+-    "@remotion/shapes": "^4.0.534",
++    "@remotion/shapes": "4.0.534",
+     "@remotion/transitions": "4.0.534",
+     "dotenv": "17.2.3",
+     "express": "5.1.0",
+
+
+=== DIFF: app/server/index.ts ===
+@@ -66,6 +66,7 @@ app.use((_req, res) => {
+ 
+ process.on('uncaughtException', (err) => {
+   console.error('[UNCAUGHT EXCEPTION]:', err);
++  process.exit(1);
+ });
+ 
+ process.on('unhandledRejection', (reason) => {
+
+
+Investigate per the method in your instructions, then return the findings list.
