@@ -1,0 +1,15 @@
+<pasted_content id="47e6">
+[research] Researching query: "Create a  visually soothing animated reel explaining where homeopathic mother tinctures come from. Use botanical vector" for prompt: "Create a 20-second visually soothing animated reel explaining where homeopathic mother tinctures come from. Use botanical vector illustrations that bloom and transform into medicine dropper bottles. Voiceover should explain the principle of "like cures like" in under 20 seconds. Use soft pastel tones, clean typography, and a calming, educational vibe. Light pastel background (cream, sage, blush, lavender), not dark mode. Slow, gentle narration with a soft opening line, no shock hook. Leaves unfold petal by petal, then cross-dissolve into an amber dropper bottle."
+[transcribe] transcript has text but no word timestamps (granularity unsupported), ignoring.
+[job 20261012063936-678fd664] transcript has text but no word timestamps (granularity unsupported) — using estimated word timings.
+[job 20261012063936-678fd664] transcript: 45 words, 4 beats (estimated).
+[job 20261012063936-678fd664] review: Scene 1 is a personal beat ("Homeopathic mother tinctures start as pl…") — chart "bento_grid" demoted to "kinetic_typography".
+[job 20261012063936-678fd664] review: Scene 2 repeated "kinetic_typography" — rotated to "bento_grid".
+[job 20261012063936-678fd664] review: Scene 3: 3 fabricated bar(s) dropped.
+[job 20261012063936-678fd664] review: Scene 3 data visual "comparison_matrix" had filler copy — rebuilt payload from the voiceover.
+[job 20261012063936-678fd664] review: Scene 3 comparison had no grounded numbers — honest side-by-side instead.
+[job 20261012063936-678fd664] codegen typecheck failed — one repair round.
+[job 20261012063936-678fd664] custom visual written (14859 chars, 4 beats).
+</pasted_content id="47e6">
+
+, it worked. [Image #5]  and this is what it is showing on dashboard
