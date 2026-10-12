@@ -1,180 +1,269 @@
-# Shawtty
+# Shawtty 🎬
 
-Type a topic, get a finished 9:16 narrated motion-graphics reel. Built for small English-language creators who don't want to touch a timeline.
+> **Autonomous 9:16 Vertical Motion-Graphics Reel Generator**  
+> Built with Python **Manim Community Edition**, LLM Planning, **Sarvam AI Voiceover**, and a Self-Healing Code Repair Loop.
 
-The code that runs today lives in `app/` (Express + Remotion, TypeScript throughout). `docs/plan.md` is where v2 goes next (research-to-reel pipeline).
+Shawtty turns any text topic into a polished, high-definition 1080x1920 vertical video reel. Designed for technical educators, developers, and creators, it crafts 3Blue1Brown-style explanatory motion graphics with synchronized voiceover narration—completely hands-free.
 
-## Repo layout
+---
 
-```text
-app/                         # Runnable MVP app (Express + Remotion), TypeScript
-  server/                    # Express API + job pipeline (jobs, AICredits, render, media, sound)
-  remotion/                  # Trusted renderer (GeneratedReel, 1080x1920 @30fps)
-  public/                    # Browser prompt panel
-  scripts/                   # check-env, render-smoke
-  types.ts                   # Shared domain types
-  eslint.config.js           # ESLint flat config
-  vitest.config.ts           # Vitest config
-docs/                        # plan, revise-plan, HARNESS, research notes
-hyperframes/                 # HyperFrames port output + eval artifacts
-skills/                      # Vendored agent skills (git-workflow, remotion-to-hyperframes)
-skills-lock.json             # Skill install lock (source + hash)
-netlogs-trail/               # Neatlogs integration task brief
+## 🌟 Highlights
+
+- **Pure Manim Community Engine**: Crisp vector typography, smooth geometric transformations, dynamic graphs, and technical architecture diagrams rendered at 1080x1920 (9:16).
+- **Synchronized Voiceover**: Narration powered by **Sarvam AI** (`bulbul:v4-flash`), audio duration measurement down to the millisecond, and automatic scene timing alignment.
+- **Self-Healing LLM Repair Agent**: If a generated Manim script triggers a runtime exception or syntax error, an intelligent repair agent analyzes the Python traceback and compiler stderr to patch and re-compile automatically (up to 3 retries).
+- **Embedded SVG Icon Library**: Bundled vector icons for cloud infrastructure, databases, servers, security, and networking.
+- **Dual-Interface Flexibility**:
+  - **Main Web Studio** (`localhost:3000`): Full prompt suite, job tracking, and reel viewer.
+  - **Manim Service UI** (`localhost:8000`): Dedicated Python microservice playground with live code inspector and raw code renderer.
+- **Containerized Deployment**: One-command launch with `docker-compose`.
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    User([User / Browser]) -->|Submits topic prompt| UI[Web Studio - Port 3000]
+    UI -->|POST /api/jobs| Gateway[Express Gateway - app/]
+    
+    subgraph Manim Service [Manim Microservice - Port 8000]
+        Gateway -->|POST /api/jobs| Orchestrator[Pipeline Orchestrator]
+        
+        Orchestrator -->|1. Plan 4-Act Storyboard| LLM[LLM Planner / LiteLLM]
+        Orchestrator -->|2. Synthesize Audio| TTS[Sarvam AI TTS Engine]
+        TTS -->|Returns measured timings| Orchestrator
+        
+        Orchestrator -->|3. Generate Scene Code| Codegen[Manim Code Generator]
+        Codegen -->|4. Compile Scene| Compiler[Manim Community 1080p Runner]
+        
+        Compiler -->|Fail / Traceback| Repair[Self-Healing Repair Agent]
+        Repair -->|Patched Script| Compiler
+        
+        Compiler -->|Success: Raw Video| Muxer[FFmpeg Audio Muxer]
+        TTS -->|Narration Audio| Muxer
+        Muxer -->|5. Final 1080p MP4| Output[output/job_id.mp4]
+    end
+
+    Output -->|Stream / Download| Gateway
+    Gateway -->|Display & Playback| UI
 ```
 
-Unit tests are co-located as `*.test.ts` next to the module they cover.
+---
 
-## Prerequisites
+## 🚀 Quickstart
 
-- Node.js 22.12+ or 24+ (`node --version`) — required by Vitest 5 / ESLint 9
-- FFmpeg + FFprobe on PATH (`ffmpeg -version`, `ffprobe -version`)
-- An AICredits key with access to `openai/gpt-4.1-mini` (plan) and
-  `openai/tts-1` (speech)
+### Method 1: Docker Compose (Recommended)
 
-## Setup guide
+The fastest and most reliable way to run Shawtty with all system dependencies (Python 3.11, Manim Community, FFmpeg, Cairo, Pango, and Node.js):
 
-1. Clone and enter the app:
-
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/atharvdange618/Shawtty.git
-   cd Shawtty/app
+   cd Shawtty
    ```
 
-2. Install dependencies:
-
+2. **Configure environment variables:**
    ```bash
-   npm install
+   cp app/.env.example app/.env
+   cp manim-service/.env.example manim-service/.env
    ```
+   Add your API keys in `app/.env` and `manim-service/.env`:
+   - `LLM_API_KEY`: LiteLLM / Anthropic / OpenAI key for script planning and code generation.
+   - `SARVAM_API_KEY`: Sarvam AI subscription key for natural voiceover.
 
-3. Configure the environment:
-
+3. **Start the containers:**
    ```bash
-   cp .env.example .env
+   docker compose up --build
    ```
 
-   Edit `.env` and set `AICREDITS_API_KEY`. Defaults work for everything else:
+4. **Open your browser:**
+   - **Main Studio**: [http://localhost:3000](http://localhost:3000)
+   - **Manim Service Console**: [http://localhost:8000](http://localhost:8000)
 
-   | Variable | Default | Purpose |
-   |---|---|---|
-   | `AICREDITS_API_KEY` | (empty) | Required for plan + speech calls |
-   | `AICREDITS_BASE_URL` | `https://aicredits.in/v1` | Primary gateway |
-   | `AICREDITS_FALLBACK_BASE_URL` | `https://api.aicredits.in/v1` | Fallback gateway |
-   | `VIDEO_MODEL` | `openai/gpt-4.1-mini` | Motion-plan model |
-   | `SPEECH_MODEL` | `openai/tts-1` | Narration model |
-   | `SPEECH_VOICE` | `alloy` | Also: echo, fable, onyx, nova, shimmer |
-   | `SPEECH_FORMAT` | `mp3` | Speech audio format |
-   | `PROMPT_MAX_CHARS` | `20000` | Max prompt length |
-   | `PORT` | `3000` | HTTP port |
+---
 
-4. Run the local quality gate (no API cost):
+### Method 2: Running Locally (Bare Metal)
 
-   ```bash
-   npm run typecheck
-   npm run lint
-   npm run test
-   ```
+#### Prerequisites
+- **Node.js**: `v20.x` or `v22.x`
+- **Python**: `3.10+` or `3.11+`
+- **FFmpeg**: Installed and accessible on your system `PATH`
+- **Manim Community System Libraries**:
+  - **Windows**: Install [MiKTeX](https://miktex.org/) (optional for LaTeX) and ensure FFmpeg is in PATH.
+  - **macOS**: `brew install cairo pango ffmpeg`
+  - **Ubuntu/Debian**: `sudo apt install libcairo2-dev libpango1.0-dev ffmpeg`
 
-   Expected: no type errors, no lint problems, all tests pass. See
-   [Quality checks](#quality-checks) for what each covers.
+#### 1. Setup & Run `manim-service` (Port 8000)
 
-5. Sanity-check env + binaries (no API cost):
+```bash
+cd manim-service
 
-   ```bash
-   npm run check
-   ```
+# Create and activate Python virtual environment
+python -m venv .venv
+# On Windows:
+.venv\Scripts\activate
+# On Linux/macOS:
+# source .venv/bin/activate
 
-   Expected: key status, model names, and `ffmpeg:` / `ffprobe:` version lines.
-   If a binary is "missing", install FFmpeg and re-run.
+# Install Python dependencies
+pip install -r requirements.txt
 
-6. Verify the render path without spending (no LLM calls):
+# Configure .env
+cp .env.example .env
+# Edit .env with your keys
 
-   ```bash
-   npm run render:smoke
-   ```
+# Start FastAPI server
+uvicorn service.main:app --host 0.0.0.0 --port 8000 --reload
+```
 
-   Expected: `reel/smoke/reel.mp4`. This exercises the same `renderReel`
-   function jobs use.
+#### 2. Setup & Run Express Gateway (`app/` - Port 3000)
 
-7. Start the server:
+```bash
+cd ../app
 
-   ```bash
-   npm run dev
-   ```
+# Install Node dependencies
+npm install
 
-   Open `http://localhost:3000`, type a prompt, submit. To include a target
-   length, write it in the prompt ("20-second reel", "1 min"), the planner
-   parses 5-90s and fits TTS speed (0.85-1.15) to match.
+# Configure .env
+cp .env.example .env
 
-8. Check a job:
+# Verify environment
+npm run check
 
-   ```bash
-   curl http://localhost:3000/api/health
-   curl http://localhost:3000/api/jobs/<job-id>
-   ```
+# Start Express server
+npm run dev
+```
 
-   Each job persists `reel/<job-id>/{input.json,plan.json,job.json,reel.mp4}`;
-   speech audio lands in `public/generated/<job-id>.mp3`.
+Navigate to `http://localhost:3000` to start creating reels!
 
-## Scripts
+---
 
-| Command | What it does | Cost |
+## ⚙️ Environment Configuration
+
+### Gateway (`app/.env`)
+
+| Variable | Default | Description |
 |---|---|---|
-| `npm run dev` / `npm start` | Start Express (`server/index.ts`) | API cost per job |
-| `npm run check` | Env + ffmpeg/ffprobe sanity | Free |
-| `npm run render:smoke` | Local 6s render to `reel/smoke/` | Free |
-| `npm run typecheck` | TypeScript check across `server/`, `remotion/`, `scripts/` | Free |
-| `npm run lint` | ESLint (TypeScript + browser JS) | Free |
-| `npm run test` | Vitest unit tests (`test:watch` to watch) | Free |
-| `npm run remotion:studio` | Open Remotion Studio with a placeholder visual (stage only) | Free |
+| `PORT` | `3000` | Port for the Express gateway |
+| `MANIM_SERVICE_URL` | `http://localhost:8000` | URL of the Manim microservice (use `http://manim-service:8000` in Docker) |
+| `PROMPT_MAX_CHARS` | `20000` | Maximum prompt length |
 
-To re-render a past job by hand, point Remotion at its generated entry:
-`npx remotion render reel/<job-id>/entry.generated.tsx JobReel out.mp4`.
-The bare `remotion/index.tsx` has no visual and throws on purpose.
+### Manim Service (`manim-service/.env`)
 
-## Quality checks
-
-All free, no API calls:
-
-- `npm run typecheck` — `tsc --noEmit` across `server/`, `remotion/`,
-  `scripts/`, `types.ts`, and test files. Strict mode, no `any`.
-- `npm run lint` — ESLint flat config (`eslint.config.js`): `js` +
-  `typescript-eslint` recommended, node globals for TS, browser globals for
-  `public/**/*.js`. Use `npm run lint:fix` to autofix.
-- `npm run test` — Vitest (`vitest.config.ts`, node env). Unit tests cover the
-  pure, deterministic helpers: `server/timeline.ts` (`timelineFor`,
-  `timelineFromBeats`, beat grouping), `server/review.ts`, `server/eval.ts`,
-  `server/codegen.ts` (prompt + security scan), `server/sound.ts`,
-  `server/media.ts`, and `server/aicredits.ts` (`extractTargetSeconds`,
-  `wordBudgetFor`, `resolveSpeechVoice`). Use `npm run test:watch` to watch.
-
-## API
-
-| Method | Path | Notes |
+| Variable | Default | Description |
 |---|---|---|
-| `GET` | `/api/health` | `ok`, key presence, models (never leaks the key) |
-| `GET` | `/api/jobs` | List jobs |
-| `POST` | `/api/jobs` | Body `{ prompt }`, returns `202 { job }` |
-| `GET` | `/api/jobs/:id` | Status, plan, `videoUrl` |
-| Static | `/reel/*`, `/` | Rendered MP4s, prompt panel |
+| `LLM_API_KEY` | *(required)* | API key for LLM generation |
+| `LLM_BASE_URL` | `https://litellm.vision.aivar.app/v1` | LiteLLM or OpenAI-compatible endpoint |
+| `VIDEO_MODEL` | `claude-opus-4.6` | Model used for script planning and Manim code generation |
+| `SARVAM_API_KEY` | *(recommended)* | Sarvam AI key for primary voiceover synthesis |
+| `SARVAM_BASE_URL` | `https://api.sarvam.ai` | Sarvam AI API URL |
+| `SARVAM_MODEL` | `bulbul:v4-flash` | TTS model |
+| `SARVAM_SPEAKER` | `shubh_enhi_ads` | Voice profile (`shubh_enhi_ads`, `ritu`, `aditya`, etc.) |
+| `PORT` | `8000` | Port for the FastAPI microservice |
 
-## Troubleshooting
+---
 
-- `AICREDITS_API_KEY: missing` from `npm run check` → `.env` not created or key
-  empty. Copy from `.env.example` first.
-- `ffmpeg/ffprobe: missing` → install FFmpeg and ensure both are on PATH.
-- Job fails with 401 → bad key; 402/balance → empty AICredits balance;
-  429 → rate-limited, retry.
-- Sarvam Bulbul voices fail through the gateway (voice swapped to `meera`,
-  rejected 400) → stay on `openai/tts-1` for now.
-- `reel/` output or `public/generated/*.mp3` missing → both dirs are
-  auto-created on server start; both are git-ignored build artifacts.
-- Never commit `.env`. It is git-ignored; `.env.example` is the template.
+## 📖 App Usage Guide
 
-## Docs
+### 1. Generating a Reel via Web UI
 
-- `docs/plan.md`: v2 goal, staged pipeline, cost/reliability, open decisions.
-- `docs/revise-plan.md`: revised v2.1 reel architecture plan.
-- `docs/HARNESS.md`: pipeline contract, visual system, HyperFrames eval (SSIM 0.922), verify commands.
-- `docs/MOTION-GRAPHICS-RESEARCH.md`, `docs/INTEGRATIONS-RESEARCH.md`: research notes.
-- `app/README.md`: MVP app notes.
-- `netlogs-trail/`: Neatlogs integration task brief.
+1. Open `http://localhost:3000`.
+2. Enter your topic prompt in the input box. For example:
+   - *"How Redis pub/sub works vs message queues with worker pools"*
+   - *"Understanding Raft Consensus Algorithm in distributed databases"*
+   - *"OAuth 2.0 Authorization Code flow with PKCE"*
+3. Click **Generate Reel**.
+4. Track real-time pipeline status:
+   - **Phase 1**: 4-act narrative storyboard planning.
+   - **Phase 2**: Sarvam AI voiceover audio synthesis.
+   - **Phase 3**: Time-synchronized Manim scene generation.
+   - **Phase 4**: 1080p Manim rendering (with automatic self-healing repair if needed).
+   - **Phase 5**: Final audio muxing & video delivery.
+5. Watch the preview in the browser or download the completed `.mp4`.
+
+### 2. Standalone Manim Service Console
+
+Visit `http://localhost:8000` for the direct developer console:
+- Test custom prompts directly against the Python microservice.
+- Inspect the generated Manim code and retry records.
+- View rendered raw outputs.
+
+---
+
+## 📡 API Reference
+
+### Express Gateway (`http://localhost:3000`)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/health` | Health status and gateway config |
+| `GET` | `/api/jobs` | List recent video generation jobs |
+| `POST` | `/api/jobs` | Submit a new generation job: `{"prompt": "string"}` |
+| `GET` | `/api/jobs/:id` | Poll job progress, logs, and `videoUrl` |
+| `GET` | `/reel/:id/reel.mp4` | Stream or download the completed 1080p video |
+
+### Manim Microservice (`http://localhost:8000`)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/health` | Service health, engine info, and output directory |
+| `POST` | `/api/jobs` | Submit job: `{"prompt": "string", "quality": "h", "max_retries": 3}` |
+| `GET` | `/api/jobs` | List active and historical jobs |
+| `GET` | `/api/jobs/{job_id}` | Retrieve job state, generated code, and attempt logs |
+| `GET` | `/output/{job_id}.mp4` | Stream rendered MP4 file |
+
+---
+
+## 📂 Project Structure
+
+```text
+Shawtty/
+├── app/                              # Express Gateway & Frontend
+│   ├── public/                       # Frontend Web UI (HTML, CSS, JS)
+│   ├── server/                       # Express server & job proxy
+│   │   ├── config.ts                 # Configuration loader
+│   │   ├── index.ts                  # Server entrypoint & routing
+│   │   └── jobs.ts                   # Orchestration proxy & video streamer
+│   ├── scripts/                      # Utility scripts (check-env.ts)
+│   ├── Dockerfile                    # Express Docker container
+│   └── package.json                  # Node dependencies & scripts
+│
+├── manim-service/                    # Standalone Python Manim Engine
+│   ├── service/                      # Core FastAPI Service
+│   │   ├── assets/icons/             # Bundled SVG icons (cloud, server, db, etc.)
+│   │   ├── config.py                 # Python configuration
+│   │   ├── llm_client.py             # Resilient multi-endpoint LLM client
+│   │   ├── main.py                   # FastAPI application & REST endpoints
+│   │   ├── manim_generator.py        # 4-Act narrative planner & code generator
+│   │   ├── manim_runner.py           # Sandboxed Manim CLI runner (1080p, 60fps)
+│   │   ├── orchestrator.py           # Pipeline orchestrator & step manager
+│   │   ├── repair_agent.py           # Self-healing traceback diagnosis & patcher
+│   │   ├── static/                   # Standalone service developer UI
+│   │   └── tts.py                    # Sarvam AI TTS client & audio muxing
+│   ├── Dockerfile                    # Manim Community + FFmpeg container
+│   ├── docker-compose.yml            # Standalone service compose file
+│   └── requirements.txt              # Python dependencies (fastapi, manim, etc.)
+│
+├── docker-compose.yml                # Full-stack composition (app + manim-service)
+├── docs/                             # Architecture specifications & design docs
+└── README.md                         # Project documentation
+```
+
+---
+
+## 🧪 Quality & Verification
+
+Verify the Node.js TypeScript codebase:
+
+```bash
+cd app
+npm run typecheck    # Strict TypeScript verification across server & scripts
+npm run check        # Environment variables & Manim service connectivity check
+```
+
+---
+
+## 📄 License
+
+MIT
