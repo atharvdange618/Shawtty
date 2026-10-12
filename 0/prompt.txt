@@ -1,0 +1,1 @@
+commit it as two commits: fix(remotion) for the studio entry and script changes, docs(readme) for the README, then merge into main and push
